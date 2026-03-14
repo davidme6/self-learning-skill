@@ -1,0 +1,45 @@
+# ClawHub 自动发布配置
+# 用于自动上传技能到 ClawHub 平台
+
+clawhub:
+  name: Self-Learning Skill
+  version: 1.0.0
+  description: 自我学习与迭代技能系统 - 持续学习、识别不足、主动增强、迭代进化
+  
+  category:
+    primary: AI 助手
+    secondary: 效率工具
+    
+  tags:
+    - self-learning
+    - ai-skill
+    - productivity
+    - self-improvement
+    - learning-system
+    - skill-system
+    - ai-assistant
+  
+  author:
+    name: AI Assistant
+    email: auto@openclaw.ai
+    
+  repository:
+    type: github
+    url: https://github.com/YOUR_USERNAME/self-learning-skill
+    
+  files:
+    include:
+      - README.md
+      - .agents/skills/self-learning/
+      - learning/
+      
+  screenshots:
+    - path: screenshots/dashboard.png
+      caption: 能力评估矩阵
+    - path: screenshots/progress.png
+      caption: 学习进度追踪
+      
+  pricing:
+    type: free
+    
+  license: MIT
