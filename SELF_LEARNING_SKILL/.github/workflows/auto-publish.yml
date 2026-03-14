@@ -1,0 +1,38 @@
+name: Auto Publish to ClawHub
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Install ClawHub CLI
+      run: npm install -g @clawhub/cli
+    
+    - name: Publish to ClawHub
+      env:
+        CLAWHUB_TOKEN: ${{ secrets.CLAWHUB_TOKEN }}
+      run: |
+        cd SELF_LEARNING_SKILL
+        clawhub publish --token $CLAWHUB_TOKEN --auto
+    
+    - name: Create Release Package
+      run: |
+        zip -r self-learning-skill-v1.0.0.zip SELF_LEARNING_SKILL/
+    
+    - name: Upload Release Asset
+      uses: actions/upload-artifact@v3
+      with:
+        name: release-package
+        path: self-learning-skill-v1.0.0.zip
