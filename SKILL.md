@@ -1,3 +1,12 @@
+---
+name: self-learning
+description: 自我学习与迭代技能 v3.0.0 - 持续学习、错误预防、举一反三。包含能力评估、多渠道学习、进度追踪、错误学习系统、举一反三思维模型等核心功能。
+openclaw:
+  version: 3.0.0
+  author: AI Assistant
+  license: MIT
+---
+
 # Self-Learning Skill v3.0.0 - 自我学习与迭代技能
 
 > 持续学习、识别不足、主动增强、迭代进化、永不重复犯错、**举一反三**
