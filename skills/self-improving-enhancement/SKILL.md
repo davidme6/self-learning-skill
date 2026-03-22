@@ -4,7 +4,7 @@ slug: self-improving-enhancement
 version: 2.0.0
 homepage: https://github.com/openclaw/skills/tree/main/self-improving-enhancement
 description: Enhanced self-improvement skill with FULL chat logging (text+images), smart memory compaction, automatic pattern recognition, context-aware learning, multi-skill synergy, visual statistics, and scheduled reviews. Prevents memory loss on restart.
-changelog: "V2.0: Added full chat logging - records ALL conversations (text+images) to prevent memory loss on restart. New script: full-chat-logger.py"
+changelog: "V2.0.1: Added cleanup confirmation - asks user before deleting old logs, never auto-deletes without permission. Added --auto flag for scripted cleanup."
 metadata: {"clawdbot":{"emoji":"🧠✨","requires":{"bins":["python3"]},"os":["linux","darwin","win32"],"configPaths":["~/self-improving/"],"configPaths.optional":["./AGENTS.md","./SOUL.md","./HEARTBEAT.md"]}}
 ---
 
@@ -47,7 +47,7 @@ python skills/self-improving-enhancement/scripts/review.py --weekly
 - Records **ALL** chat content (text + images)
 - Stores by date in JSONL format
 - Images: stores path + description (not file itself)
-- Auto-cleanup old logs (configurable, default 30 days)
+- Auto-cleanup old logs (requires user confirmation, default 30 days)
 
 **Storage:**
 ```
@@ -72,8 +72,11 @@ python scripts/full-chat-logger.py view
 # View stats
 python scripts/full-chat-logger.py stats
 
-# Cleanup old logs (keep 30 days)
+# Cleanup old logs (keep 30 days, requires confirmation)
 python scripts/full-chat-logger.py cleanup --days 30
+
+# Auto-confirm cleanup (no prompt)
+python scripts/full-chat-logger.py cleanup --days 30 --auto
 ```
 
 ---

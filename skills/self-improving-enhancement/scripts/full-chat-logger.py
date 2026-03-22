@@ -150,27 +150,73 @@ class ChatLogger:
             "today_messages": len(self.get_today_messages())
         }
     
-    def cleanup_old_logs(self, keep_days: int = 30):
-        """清理旧记录（保留最近 N 天）"""
+    def cleanup_old_logs(self, keep_days: int = 30, auto_confirm: bool = False):
+        """
+        清理旧记录（保留最近 N 天）
+        
+        Args:
+            keep_days: 保留天数
+            auto_confirm: 是否自动确认（默认 False，需要用户确认）
+        """
         from datetime import timedelta
         
         cutoff = datetime.now() - timedelta(days=keep_days)
-        removed = 0
+        to_remove = []
         
+        # 先列出要清理的记录
         for day in self.index["days"][:]:
             try:
                 day_date = datetime.strptime(day, "%Y-%m-%d")
                 if day_date < cutoff:
                     file_path = self.base_dir / f"{day}.jsonl"
                     if file_path.exists():
-                        file_path.unlink()
-                        removed += 1
-                    self.index["days"].remove(day)
+                        # 统计消息数
+                        msg_count = sum(1 for _ in open(file_path, 'r', encoding='utf-8'))
+                        to_remove.append({
+                            "date": day,
+                            "file": str(file_path),
+                            "messages": msg_count
+                        })
+            except:
+                continue
+        
+        if not to_remove:
+            print(f"[✓] 没有需要清理的旧记录（保留最近 {keep_days} 天）")
+            return
+        
+        # 显示清理预览
+        print("\n🗑️  发现可清理的旧记录")
+        print("=" * 60)
+        print(f"保留最近 {keep_days} 天的记录，以下记录将被清理：\n")
+        
+        total_messages = 0
+        for item in to_remove:
+            print(f"  📅 {item['date']} - {item['messages']} 条消息")
+            total_messages += item['messages']
+        
+        print(f"\n共计：{len(to_remove)} 天，{total_messages} 条消息")
+        print("=" * 60)
+        
+        # 询问确认
+        if not auto_confirm:
+            print("\n⚠️  清理后无法恢复，确认要清理吗？")
+            response = input("输入 'yes' 确认清理，其他取消：").strip().lower()
+            if response != 'yes':
+                print("[✗] 已取消清理操作")
+                return
+        
+        # 执行清理
+        removed = 0
+        for item in to_remove:
+            try:
+                Path(item['file']).unlink()
+                self.index["days"].remove(item['date'])
+                removed += 1
             except:
                 continue
         
         self.save_index()
-        print(f"[✓] 清理了 {removed} 天的旧记录")
+        print(f"\n[✓] 已清理 {removed} 天的旧记录（共 {total_messages} 条消息）")
 
 
 def main():
@@ -186,6 +232,7 @@ def main():
     parser.add_argument("--desc", help="图片描述")
     parser.add_argument("--date", help="查看日期 (YYYY-MM-DD)")
     parser.add_argument("--days", type=int, default=30, help="保留天数")
+    parser.add_argument("--auto", action="store_true", help="自动确认，不询问")
     
     args = parser.parse_args()
     logger = ChatLogger()
@@ -207,7 +254,7 @@ def main():
         print()
     
     elif args.action == "cleanup":
-        logger.cleanup_old_logs(args.days)
+        logger.cleanup_old_logs(args.days, auto_confirm=args.auto)
     
     elif args.action == "view":
         if args.date:
