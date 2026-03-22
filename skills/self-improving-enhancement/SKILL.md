@@ -1,10 +1,10 @@
 ---
 name: Self-Improving Enhancement
 slug: self-improving-enhancement
-version: 1.1.1
+version: 2.0.0
 homepage: https://github.com/openclaw/skills/tree/main/self-improving-enhancement
-description: Enhanced self-improvement skill with smart memory compaction, automatic pattern recognition, context-aware learning, multi-skill synergy, visual statistics, and scheduled reviews. Makes AI assistants 300% smarter through continuous learning.
-changelog: "Added complete script suite: init.py, stats.py, compact.py, pattern-detect.py, review.py, visualize.py. Full English documentation."
+description: Enhanced self-improvement skill with FULL chat logging (text+images), smart memory compaction, automatic pattern recognition, context-aware learning, multi-skill synergy, visual statistics, and scheduled reviews. Prevents memory loss on restart.
+changelog: "V2.0: Added full chat logging - records ALL conversations (text+images) to prevent memory loss on restart. New script: full-chat-logger.py"
 metadata: {"clawdbot":{"emoji":"🧠✨","requires":{"bins":["python3"]},"os":["linux","darwin","win32"],"configPaths":["~/self-improving/"],"configPaths.optional":["./AGENTS.md","./SOUL.md","./HEARTBEAT.md"]}}
 ---
 
@@ -22,11 +22,14 @@ Built on top of the original `self-improving` skill, this enhanced version adds 
 # Install
 clawhub install self-improving-enhancement
 
-# Initialize memory system
+# Initialize memory system (including full chat logging)
 python skills/self-improving-enhancement/scripts/init.py
 
 # View statistics
 python skills/self-improving-enhancement/scripts/stats.py
+
+# View chat logs
+python skills/self-improving-enhancement/scripts/full-chat-logger.py view
 
 # Weekly review
 python skills/self-improving-enhancement/scripts/review.py --weekly
@@ -35,6 +38,45 @@ python skills/self-improving-enhancement/scripts/review.py --weekly
 ---
 
 ## 🎯 Core Enhancements
+
+### 0️⃣ Full Chat Logging (NEW! V2.0)
+
+**Problem:** Session restart causes memory loss, tasks get interrupted
+
+**Solution:**
+- Records **ALL** chat content (text + images)
+- Stores by date in JSONL format
+- Images: stores path + description (not file itself)
+- Auto-cleanup old logs (configurable, default 30 days)
+
+**Storage:**
+```
+~/self-improving/chat-logs/
+├── 2026-03-23.jsonl    # Today's chat log
+├── 2026-03-22.jsonl    # Yesterday's log
+├── index.json          # Statistics index
+└── ...
+```
+
+**Usage:**
+```bash
+# Log a message
+python scripts/full-chat-logger.py log --role user --content "Hello"
+
+# Log an image
+python scripts/full-chat-logger.py log --image "C:\path\to\img.png" --desc "Screenshot"
+
+# View today's logs
+python scripts/full-chat-logger.py view
+
+# View stats
+python scripts/full-chat-logger.py stats
+
+# Cleanup old logs (keep 30 days)
+python scripts/full-chat-logger.py cleanup --days 30
+```
+
+---
 
 ### 1️⃣ Smart Memory Compaction
 

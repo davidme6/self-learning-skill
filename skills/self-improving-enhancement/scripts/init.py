@@ -27,6 +27,7 @@ def init():
         base_dir / "projects",
         base_dir / "domains",
         base_dir / "archive",
+        base_dir / "chat-logs",  # V2.0 新增：完整聊天记录
     ]
     
     for d in dirs:
