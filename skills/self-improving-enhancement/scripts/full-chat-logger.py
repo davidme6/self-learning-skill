@@ -150,35 +150,58 @@ class ChatLogger:
             "today_messages": len(self.get_today_messages())
         }
     
-    def cleanup_old_logs(self, keep_days: int = 30, auto_confirm: bool = False):
+    def cleanup_old_logs(self, keep_days: int = 30, auto_confirm: bool = False, specific_dates: list = None):
         """
         清理旧记录（保留最近 N 天）
         
         Args:
-            keep_days: 保留天数
+            keep_days: 保留天数（默认 30 天，30 天内的不会清理）
             auto_confirm: 是否自动确认（默认 False，需要用户确认）
+            specific_dates: 指定清理的日期列表（用户明确指定的）
         """
         from datetime import timedelta
         
         cutoff = datetime.now() - timedelta(days=keep_days)
         to_remove = []
         
-        # 先列出要清理的记录
-        for day in self.index["days"][:]:
-            try:
-                day_date = datetime.strptime(day, "%Y-%m-%d")
-                if day_date < cutoff:
-                    file_path = self.base_dir / f"{day}.jsonl"
-                    if file_path.exists():
-                        # 统计消息数
-                        msg_count = sum(1 for _ in open(file_path, 'r', encoding='utf-8'))
-                        to_remove.append({
-                            "date": day,
-                            "file": str(file_path),
-                            "messages": msg_count
-                        })
-            except:
-                continue
+        # 如果有指定日期，只清理指定的（但必须超过 30 天）
+        if specific_dates:
+            for day in specific_dates:
+                if day not in self.index["days"]:
+                    print(f"[!] 日期 {day} 没有聊天记录")
+                    continue
+                
+                try:
+                    day_date = datetime.strptime(day, "%Y-%m-%d")
+                    if day_date < cutoff:
+                        file_path = self.base_dir / f"{day}.jsonl"
+                        if file_path.exists():
+                            msg_count = sum(1 for _ in open(file_path, 'r', encoding='utf-8'))
+                            to_remove.append({
+                                "date": day,
+                                "file": str(file_path),
+                                "messages": msg_count
+                            })
+                    else:
+                        print(f"[!] 日期 {day} 的记录在 {keep_days} 天内，不能清理（保护近期记录）")
+                except:
+                    continue
+        else:
+            # 默认清理所有超过 keep_days 的记录
+            for day in self.index["days"][:]:
+                try:
+                    day_date = datetime.strptime(day, "%Y-%m-%d")
+                    if day_date < cutoff:
+                        file_path = self.base_dir / f"{day}.jsonl"
+                        if file_path.exists():
+                            msg_count = sum(1 for _ in open(file_path, 'r', encoding='utf-8'))
+                            to_remove.append({
+                                "date": day,
+                                "file": str(file_path),
+                                "messages": msg_count
+                            })
+                except:
+                    continue
         
         if not to_remove:
             print(f"[✓] 没有需要清理的旧记录（保留最近 {keep_days} 天）")
@@ -254,7 +277,11 @@ def main():
         print()
     
     elif args.action == "cleanup":
-        logger.cleanup_old_logs(args.days, auto_confirm=args.auto)
+        # 解析指定日期
+        dates = None
+        if args.date:
+            dates = [d.strip() for d in args.date.split(',')]
+        logger.cleanup_old_logs(args.days, auto_confirm=args.auto, specific_dates=dates)
     
     elif args.action == "view":
         if args.date:

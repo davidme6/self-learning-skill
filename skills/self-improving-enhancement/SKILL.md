@@ -4,7 +4,7 @@ slug: self-improving-enhancement
 version: 2.0.0
 homepage: https://github.com/openclaw/skills/tree/main/self-improving-enhancement
 description: Enhanced self-improvement skill with FULL chat logging (text+images), smart memory compaction, automatic pattern recognition, context-aware learning, multi-skill synergy, visual statistics, and scheduled reviews. Prevents memory loss on restart.
-changelog: "V2.0.1: Added cleanup confirmation - asks user before deleting old logs, never auto-deletes without permission. Added --auto flag for scripted cleanup."
+changelog: "V2.0.2: Added 30-day protection lock - cannot delete logs within 30 days even with user confirmation. Added --date flag to clean specific dates (must be >30 days old)."
 metadata: {"clawdbot":{"emoji":"🧠✨","requires":{"bins":["python3"]},"os":["linux","darwin","win32"],"configPaths":["~/self-improving/"],"configPaths.optional":["./AGENTS.md","./SOUL.md","./HEARTBEAT.md"]}}
 ---
 
@@ -48,6 +48,8 @@ python skills/self-improving-enhancement/scripts/review.py --weekly
 - Stores by date in JSONL format
 - Images: stores path + description (not file itself)
 - Auto-cleanup old logs (requires user confirmation, default 30 days)
+- **Protected**: Cannot delete logs within 30 days (safety lock)
+- **Specific dates**: Can specify dates to clean (must be >30 days)
 
 **Storage:**
 ```
@@ -77,6 +79,12 @@ python scripts/full-chat-logger.py cleanup --days 30
 
 # Auto-confirm cleanup (no prompt)
 python scripts/full-chat-logger.py cleanup --days 30 --auto
+
+# Cleanup specific date (must be >30 days old)
+python scripts/full-chat-logger.py cleanup --date 2026-02-15
+
+# Cleanup multiple specific dates
+python scripts/full-chat-logger.py cleanup --date "2026-02-15,2026-02-16"
 ```
 
 ---
