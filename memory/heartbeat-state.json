@@ -1,0 +1,12 @@
+{
+  "lastChecks": {
+    "health_guardian": "2026-03-22T08:28:00",
+    "feishu_notification": "2026-03-22T08:28:00"
+  },
+  "issues": {
+    "HealthGuardian-Base": "错误码 2147942402，进程可能超时",
+    "send_reminder.ps1": "只写队列文件，不发送飞书通知"
+  },
+  "sent_reminders": ["07:00 晨间护肤", "08:00 喝水+维C"],
+  "notes": "手动补发了 07:00 和 08:00 的提醒。定时任务系统需要修复。"
+}

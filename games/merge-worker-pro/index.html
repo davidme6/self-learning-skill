@@ -1,0 +1,2483 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>合成天选打工人 正式版</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: #0a0a15;
+            min-height: 100vh;
+            overflow: hidden;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        
+        /* 主容器 */
+        .game-container {
+            max-width: 500px;
+            margin: 0 auto;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        /* 顶部信息栏 */
+        .header {
+            padding: 8px 12px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 10;
+        }
+        .level-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .level-badge {
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
+            padding: 4px 12px;
+            border-radius: 15px;
+            color: #fff;
+            font-weight: bold;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .level-chapter {
+            color: #ffd700;
+            font-size: 11px;
+        }
+        .score-panel {
+            text-align: right;
+        }
+        .score-label {
+            color: #666;
+            font-size: 10px;
+        }
+        .score-value {
+            color: #ffd700;
+            font-size: 20px;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255,215,0,0.3);
+        }
+        
+        /* 段位进度 */
+        .rank-bar {
+            background: rgba(0,0,0,0.5);
+            padding: 4px 12px;
+            margin: 0 8px;
+            border-radius: 8px;
+        }
+        .rank-progress-track {
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .rank-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffd700, #ff8c00, #ff6b6b);
+            transition: width 0.3s ease;
+            border-radius: 2px;
+        }
+        .rank-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: #888;
+            margin-top: 2px;
+        }
+        .rank-current {
+            color: #ffd700;
+        }
+        
+        /* 目标面板 */
+        .targets-panel {
+            background: rgba(0,0,0,0.5);
+            padding: 6px 12px;
+            margin: 0 8px;
+            border-radius: 8px;
+        }
+        .targets-header {
+            color: #888;
+            font-size: 10px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .targets-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .target-chip {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            background: rgba(255,255,255,0.1);
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: #fff;
+            transition: all 0.3s;
+        }
+        .target-chip.completed {
+            background: rgba(0,255,136,0.2);
+            color: #00ff88;
+            transform: scale(1.05);
+        }
+        .target-emoji {
+            font-size: 16px;
+        }
+        
+        /* 计时器 */
+        .timer-section {
+            text-align: center;
+            padding: 4px;
+            background: rgba(255,50,50,0.1);
+        }
+        .timer-display {
+            font-size: 32px;
+            font-weight: bold;
+            color: #ff6b6b;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 0 10px rgba(255,50,50,0.3);
+        }
+        .timer-display.warning {
+            animation: timerPulse 0.5s infinite;
+            color: #ff3333;
+        }
+        @keyframes timerPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.05); }
+        }
+        
+        /* 游戏画布区域 */
+        .game-board {
+            flex: 1;
+            position: relative;
+            margin: 6px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #1a1a2e;
+        }
+        #gameCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        
+        /* 下一个预览 */
+        .next-preview {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0,0,0,0.7);
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            color: #888;
+            z-index: 5;
+        }
+        .next-emoji {
+            font-size: 20px;
+        }
+        
+        /* 连击显示 */
+        .combo-display {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 36px;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 0 0 20px rgba(255,215,0,0.8), 0 2px 4px rgba(0,0,0,0.5);
+            pointer-events: none;
+            opacity: 0;
+            z-index: 10;
+        }
+        .combo-display.show {
+            animation: comboAnim 0.5s ease-out;
+        }
+        @keyframes comboAnim {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+        }
+        
+        /* 分数弹出 */
+        .score-popup {
+            position: absolute;
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255,215,0,0.5);
+            pointer-events: none;
+            z-index: 10;
+            animation: scoreFloat 0.8s ease-out forwards;
+        }
+        @keyframes scoreFloat {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-50px); }
+        }
+        
+        /* 底部工具栏 */
+        .toolbar {
+            display: flex;
+            justify-content: space-around;
+            padding: 8px;
+            background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 100%);
+        }
+        .tool-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            padding: 4px 8px;
+        }
+        .tool-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            transition: all 0.2s;
+        }
+        .tool-btn:active .tool-icon {
+            transform: scale(0.9);
+            background: rgba(255,255,255,0.2);
+        }
+        .tool-btn.disabled .tool-icon {
+            opacity: 0.3;
+        }
+        .tool-label {
+            font-size: 9px;
+            color: #888;
+        }
+        .tool-btn.ad .tool-icon {
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
+            border-color: transparent;
+        }
+        
+        /* 模态框基础样式 */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 20px;
+        }
+        .modal.show {
+            display: flex;
+        }
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e, #0f0f1a);
+            padding: 24px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 360px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .modal-title {
+            font-size: 24px;
+            color: #fff;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+        .modal-subtitle {
+            color: #888;
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+        .modal-emoji {
+            font-size: 48px;
+            margin: 12px 0;
+        }
+        .modal-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 25px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: transform 0.2s;
+        }
+        .modal-btn:active {
+            transform: scale(0.95);
+        }
+        .modal-btn.primary {
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
+            color: #fff;
+        }
+        .modal-btn.secondary {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+        .modal-btn.ad {
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            color: #000;
+        }
+        
+        /* 开始弹窗特殊样式 */
+        .mode-badges {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 10px 0;
+        }
+        .mode-badge {
+            padding: 5px 14px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #fff;
+        }
+        .mode-badge.hard {
+            background: linear-gradient(135deg, #ff4444, #cc0000);
+        }
+        .mode-badge.chaos {
+            background: linear-gradient(135deg, #ff8800, #cc6600);
+        }
+        
+        .probability-info {
+            background: rgba(255,100,100,0.1);
+            border: 1px solid rgba(255,100,100,0.3);
+            border-radius: 10px;
+            padding: 12px;
+            margin: 12px 0;
+            text-align: left;
+        }
+        .probability-title {
+            color: #ff6b6b;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .probability-text {
+            color: #ccc;
+            font-size: 11px;
+            line-height: 1.8;
+        }
+        .probability-text b {
+            color: #ffd700;
+        }
+        
+        .merge-chain-display {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 2px;
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+        }
+        .chain-worker {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        .chain-arrow {
+            color: #666;
+            font-size: 12px;
+        }
+        
+        .daily-challenge-box {
+            background: linear-gradient(135deg, #2a1a3a, #1a0a2a);
+            border-radius: 12px;
+            padding: 12px;
+            margin: 12px 0;
+            text-align: left;
+        }
+        .daily-challenge-title {
+            color: #ffd700;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+        .daily-challenge-text {
+            color: #aaa;
+            font-size: 11px;
+        }
+        
+        /* 统计面板 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 12px 0;
+        }
+        .stat-item {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 10px;
+        }
+        .stat-label {
+            color: #888;
+            font-size: 10px;
+        }
+        .stat-value {
+            color: #fff;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 4px;
+        }
+        
+        /* 成就系统 */
+        .achievements-scroll {
+            max-height: 200px;
+            overflow-y: auto;
+            margin: 10px 0;
+            text-align: left;
+        }
+        .achievement-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            margin-bottom: 6px;
+        }
+        .achievement-row.completed {
+            background: rgba(255,215,0,0.1);
+        }
+        .achievement-row.locked {
+            opacity: 0.5;
+        }
+        .achievement-icon {
+            font-size: 20px;
+        }
+        .achievement-info {
+            flex: 1;
+        }
+        .achievement-name {
+            color: #fff;
+            font-size: 12px;
+        }
+        .achievement-desc {
+            color: #888;
+            font-size: 10px;
+        }
+        
+        /* 成就弹出通知 */
+        .achievement-notification {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            color: #000;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: bold;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 200;
+            box-shadow: 0 10px 30px rgba(255,215,0,0.3);
+        }
+        .achievement-notification.show {
+            animation: notifyAnim 3s ease-out forwards;
+        }
+        @keyframes notifyAnim {
+            0% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+            10% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            80% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+        }
+        
+        /* Toast提示 */
+        .toast {
+            position: fixed;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.85);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 150;
+        }
+        .toast.show {
+            opacity: 1;
+        }
+        
+        /* 皮肤选择 */
+        .skin-selector {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+        .skin-option {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            border: 2px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            transition: all 0.2s;
+        }
+        .skin-option.active {
+            border-color: #ffd700;
+            background: rgba(255,215,0,0.1);
+        }
+        .skin-option.locked {
+            opacity: 0.5;
+        }
+        
+        /* 教程遮罩 */
+        .tutorial-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 150;
+        }
+        .tutorial-overlay.show {
+            display: flex;
+        }
+        .tutorial-box {
+            background: rgba(30,30,50,0.95);
+            padding: 20px;
+            border-radius: 15px;
+            max-width: 300px;
+            text-align: center;
+            border: 1px solid rgba(255,215,0,0.3);
+        }
+        .tutorial-box h3 {
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+        .tutorial-box p {
+            color: #ccc;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .tutorial-btn {
+            margin-top: 15px;
+            padding: 10px 24px;
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
+            border: none;
+            border-radius: 20px;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        /* 关卡地图 */
+        .level-map {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin: 15px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 5px;
+        }
+        .level-node {
+            aspect-ratio: 1;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        .level-node.current {
+            border-color: #ffd700;
+            box-shadow: 0 0 15px rgba(255,215,0,0.4);
+        }
+        .level-node.completed {
+            background: rgba(0,255,136,0.2);
+        }
+        .level-node.locked {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .level-node-stars {
+            font-size: 8px;
+            color: #ffd700;
+        }
+    </style>
+</head>
+<body>
+<div class="game-container" id="gameContainer">
+    <!-- 顶部 -->
+    <div class="header">
+        <div class="level-info">
+            <div class="level-badge" id="levelBadge">第 1 关</div>
+            <div class="level-chapter" id="levelChapter">🏠 热身期</div>
+        </div>
+        <div class="score-panel">
+            <div class="score-label">总分</div>
+            <div class="score-value" id="scoreDisplay">0</div>
+        </div>
+    </div>
+    
+    <!-- 段位进度 -->
+    <div class="rank-bar">
+        <div class="rank-progress-track">
+            <div class="rank-progress-fill" id="rankProgress" style="width: 0%"></div>
+        </div>
+        <div class="rank-text">
+            <span class="rank-current" id="currentRank">😊 实习生</span>
+            <span id="nextRankInfo">下一: 😐 打工人</span>
+        </div>
+    </div>
+    
+    <!-- 目标 -->
+    <div class="targets-panel">
+        <div class="targets-header">🎯 目标</div>
+        <div class="targets-grid" id="targetsGrid"></div>
+    </div>
+    
+    <!-- 计时器 -->
+    <div class="timer-section">
+        <div class="timer-display" id="timerDisplay">150</div>
+    </div>
+    
+    <!-- 游戏画布 -->
+    <div class="game-board" id="gameBoard">
+        <canvas id="gameCanvas"></canvas>
+        <div class="next-preview">下一个: <span class="next-emoji" id="nextPreview">😊</span></div>
+        <div class="combo-display" id="comboDisplay"></div>
+    </div>
+    
+    <!-- 工具栏 -->
+    <div class="toolbar">
+        <button class="tool-btn" id="shuffleBtn">
+            <div class="tool-icon">🔄</div>
+            <div class="tool-label">洗牌(<span id="shuffleCount">3</span>)</div>
+        </button>
+        <button class="tool-btn ad" id="addTimeBtn">
+            <div class="tool-icon">⏰</div>
+            <div class="tool-label">加时</div>
+        </button>
+        <button class="tool-btn" id="bombBtn">
+            <div class="tool-icon">💣</div>
+            <div class="tool-label">炸弹(<span id="bombCount">1</span>)</div>
+        </button>
+        <button class="tool-btn" id="achievementsBtn">
+            <div class="tool-icon">🏆</div>
+            <div class="tool-label">成就</div>
+        </button>
+        <button class="tool-btn" id="mapBtn">
+            <div class="tool-icon">🗺️</div>
+            <div class="tool-label">关卡</div>
+        </button>
+        <button class="tool-btn" id="adminBtn">
+            <div class="tool-icon">🔐</div>
+            <div class="tool-label">管理</div>
+        </button>
+    </div>
+</div>
+
+<!-- 开始弹窗 -->
+<div class="modal show" id="startModal">
+    <div class="modal-content">
+        <div class="modal-title">合成天选打工人</div>
+        <div class="modal-subtitle">正式版 v1.0 · 100关挑战</div>
+        
+        <div class="mode-badges">
+            <span class="mode-badge hard">🔥 地狱模式</span>
+            <span class="mode-badge chaos">⚡ 手忙脚乱</span>
+        </div>
+        
+        <div class="modal-emoji">👔</div>
+        
+        <!-- 每日挑战 - 居中样式 -->
+        <div style="background:linear-gradient(135deg,#2a1a3a,#1a0a2a);border-radius:10px;padding:10px 15px;margin:12px auto;max-width:280px;text-align:center">
+            <div style="color:#ffd700;font-size:13px;font-weight:bold;margin-bottom:4px">📅 每日挑战</div>
+            <div style="color:#aaa;font-size:11px" id="dailyText">今日: 合成5个😎组长</div>
+        </div>
+        
+        <p style="color:#aaa;font-size:12px;margin:8px 0;text-align:left">
+            <b style="color:#fff">玩法：</b>拖动<b style="color:#ffd700">相同的打工人</b>合成升级！
+        </p>
+        
+        <div class="merge-chain-display">
+            <div class="chain-worker" style="background:linear-gradient(135deg,#666,#444)">😊</div>
+            <span class="chain-arrow">→</span>
+            <div class="chain-worker" style="background:linear-gradient(135deg,#0a8,#067)">😐</div>
+            <span class="chain-arrow">→</span>
+            <div class="chain-worker" style="background:linear-gradient(135deg,#08f,#05a)">😏</div>
+            <span class="chain-arrow">→</span>
+            <div class="chain-worker" style="background:linear-gradient(135deg,#84e,#62d)">😎</div>
+            <span class="chain-arrow">→</span>
+            <div class="chain-worker" style="background:linear-gradient(135deg,#fb5,#e93)">🤓</div>
+            <span class="chain-arrow">→</span>
+            <div class="chain-worker" style="background:linear-gradient(135deg,#f75,#d53)">😈</div>
+        </div>
+        <div class="merge-chain-display">
+            <div class="chain-worker" style="background:linear-gradient(135deg,#f75,#d53)">😈</div>
+            <span class="chain-arrow">→</span>
+            <div class="chain-worker" style="background:linear-gradient(135deg,#f6a,#d48)">🤴</div>
+            <span class="chain-arrow">→</span>
+            <div class="chain-worker" style="background:linear-gradient(135deg,#ff0,#fc0);box-shadow:0 0 10px rgba(255,200,0,0.5)">👑</div>
+            <span class="chain-arrow">→</span>
+            <div class="chain-worker" style="background:linear-gradient(135deg,#0fa,#0a8);box-shadow:0 0 15px rgba(0,255,150,0.4)">💰</div>
+            <span class="chain-arrow">→</span>
+            <div class="chain-worker" style="background:linear-gradient(135deg,#f7a,#e5f);box-shadow:0 0 20px rgba(200,100,255,0.6)">🏖️</div>
+        </div>
+        
+        <!-- 刷新概率 - 旧版红色渐变样式 -->
+        <div style="background:linear-gradient(135deg,rgba(255,80,80,0.15),rgba(200,50,50,0.1));border:1px solid rgba(255,100,100,0.4);border-radius:10px;padding:12px 15px;margin:12px 0;text-align:left">
+            <div style="color:#ff6b6b;font-size:13px;font-weight:bold;margin-bottom:8px;display:flex;align-items:center;gap:6px">
+                <span>📊</span> 刷新概率
+            </div>
+            <div style="color:#ddd;font-size:12px;line-height:1.9">
+                • 😊实习生 <b style="color:#00ff88">60%</b> → 😐打工人 <b style="color:#00ff88">25%</b> → 😏老油条 <b style="color:#00ff88">10%</b><br>
+                • 高级身份 <b style="color:#ff6b6b">极低概率</b> 刷新<br>
+                • 🏖️<b style="color:#ffd700">摸鱼王只能合成！</b>不刷新！<br>
+                • 只有真正的<b style="color:#ffd700">打工天选之人</b>才能成为摸鱼王！
+            </div>
+        </div>
+        
+        <button class="modal-btn primary" id="startBtn">开始挑战</button>
+        <button class="modal-btn secondary" id="continueBtn" style="display:none">继续存档</button>
+        
+        <div class="skin-selector" id="skinSelector" style="margin-top:15px">
+            <div class="skin-option active" data-skin="office">🏢 职场</div>
+            <div class="skin-option locked" data-skin="ancient">🏛️ 古代</div>
+            <div class="skin-option locked" data-skin="xianxia">⛩️ 修仙</div>
+        </div>
+    </div>
+</div>
+
+<!-- 过关弹窗 -->
+<div class="modal" id="winModal">
+    <div class="modal-content">
+        <div class="modal-title">🎉 过关！</div>
+        <div class="modal-subtitle" id="winSubtitle">第 1 关完成</div>
+        <div class="modal-emoji">🎊</div>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-label">本关得分</div>
+                <div class="stat-value" id="winScore">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">时间奖励</div>
+                <div class="stat-value" id="winTimeBonus">+0</div>
+            </div>
+        </div>
+        <div class="stat-item" style="margin:10px 0">
+            <div class="stat-label">当前段位</div>
+            <div class="stat-value" id="winRank">😊 实习生</div>
+        </div>
+        <button class="modal-btn primary" id="nextLevelBtn">下一关</button>
+        <button class="modal-btn secondary" id="shareBtn">分享战绩</button>
+    </div>
+</div>
+
+<!-- 失败弹窗 -->
+<div class="modal" id="failModal">
+    <div class="modal-content">
+        <div class="modal-title">💀 挑战失败</div>
+        <div class="modal-subtitle" id="failSubtitle">在第 1 关倒下了</div>
+        <div class="modal-emoji">😩</div>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-label">总分</div>
+                <div class="stat-value" id="failScore">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">最高段位</div>
+                <div class="stat-value" id="failRank">😊 实习生</div>
+            </div>
+        </div>
+        <button class="modal-btn ad" id="reviveBtn">看广告复活</button>
+        <button class="modal-btn primary" id="retryBtn">重新开始</button>
+    </div>
+</div>
+
+<!-- 通关弹窗 -->
+<div class="modal" id="victoryModal">
+    <div class="modal-content">
+        <div class="modal-title">🏆 天选之人！</div>
+        <div class="modal-subtitle">恭喜通关全部 100 关！</div>
+        <div class="modal-emoji">🏖️</div>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-label">最终得分</div>
+                <div class="stat-value" id="victoryScore">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">最终段位</div>
+                <div class="stat-value" id="victoryRank">🏖️ 摸鱼王</div>
+            </div>
+        </div>
+        <button class="modal-btn primary" id="victoryShareBtn">分享战绩</button>
+        <button class="modal-btn secondary" id="replayBtn">再玩一次</button>
+    </div>
+</div>
+
+<!-- 成就弹窗 -->
+<div class="modal" id="achievementsModal">
+    <div class="modal-content">
+        <div class="modal-title">🏆 成就</div>
+        <div class="achievements-scroll" id="achievementsList"></div>
+        <button class="modal-btn secondary" id="closeAchievementsBtn">关闭</button>
+    </div>
+</div>
+
+<!-- 关卡地图弹窗 -->
+<div class="modal" id="levelMapModal">
+    <div class="modal-content">
+        <div class="modal-title">🗺️ 关卡地图</div>
+        <div class="level-map" id="levelMapGrid"></div>
+        <button class="modal-btn secondary" id="closeMapBtn">关闭</button>
+    </div>
+</div>
+
+<!-- 教程遮罩 -->
+<div class="tutorial-overlay" id="tutorialOverlay">
+    <div class="tutorial-box">
+        <h3 id="tutorialTitle">👋 欢迎新手！</h3>
+        <p id="tutorialText">拖动相同的头像到一起，就能合成升级！</p>
+        <button class="tutorial-btn" id="tutorialNextBtn">知道了</button>
+    </div>
+</div>
+
+<!-- 成就通知 -->
+<div class="achievement-notification" id="achievementNotification"></div>
+
+<!-- Toast -->
+<div class="toast" id="toastMessage"></div>
+
+<!-- 🔐 管理员面板（老板专属） -->
+<div class="modal" id="adminPanel">
+    <div class="modal-content" style="max-width:400px">
+        <div class="modal-title">🔐 管理员面板</div>
+        <div class="modal-subtitle" style="color:#ffd700">生逸超老板专属</div>
+        
+        <div style="text-align:left;margin:15px 0">
+            <div style="color:#888;font-size:11px;margin-bottom:8px">快速跳关</div>
+            <div style="display:flex;gap:8px">
+                <input type="number" id="adminLevelInput" min="1" max="100" value="1" 
+                    style="flex:1;padding:8px;border-radius:8px;border:1px solid #333;background:#1a1a2e;color:#fff;font-size:14px">
+                <button onclick="adminJumpToLevel()" style="padding:8px 16px;background:linear-gradient(135deg,#ffd700,#ff8c00);border:none;border-radius:8px;color:#000;font-weight:bold;cursor:pointer">跳转</button>
+            </div>
+        </div>
+        
+        <div style="text-align:left;margin:15px 0">
+            <div style="color:#888;font-size:11px;margin-bottom:8px">快速功能</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <button onclick="adminAddTime(60)" style="padding:10px;background:rgba(0,255,136,0.2);border:1px solid rgba(0,255,136,0.4);border-radius:8px;color:#0f8;cursor:pointer">+60秒</button>
+                <button onclick="adminAddTime(120)" style="padding:10px;background:rgba(0,255,136,0.2);border:1px solid rgba(0,255,136,0.4);border-radius:8px;color:#0f8;cursor:pointer">+120秒</button>
+                <button onclick="adminAddItems('shuffle',5)" style="padding:10px;background:rgba(255,200,0,0.2);border:1px solid rgba(255,200,0,0.4);border-radius:8px;color:#ffd700;cursor:pointer">+5洗牌</button>
+                <button onclick="adminAddItems('bomb',5)" style="padding:10px;background:rgba(255,100,100,0.2);border:1px solid rgba(255,100,100,0.4);border-radius:8px;color:#f66;cursor:pointer">+5炸弹</button>
+            </div>
+        </div>
+        
+        <div style="text-align:left;margin:15px 0">
+            <div style="color:#888;font-size:11px;margin-bottom:8px">测试功能</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <button onclick="adminSpawnRank(9)" style="padding:10px;background:rgba(200,100,255,0.2);border:1px solid rgba(200,100,255,0.4);border-radius:8px;color:#f7a;cursor:pointer">生成🏖️</button>
+                <button onclick="adminSpawnRank(7)" style="padding:10px;background:rgba(255,200,0,0.2);border:1px solid rgba(255,200,0,0.4);border-radius:8px;color:#ffd700;cursor:pointer">生成👑</button>
+                <button onclick="adminClearWorkers()" style="padding:10px;background:rgba(255,50,50,0.2);border:1px solid rgba(255,50,50,0.4);border-radius:8px;color:#f55;cursor:pointer">清空头像</button>
+                <button onclick="adminAutoWin()" style="padding:10px;background:rgba(0,255,136,0.2);border:1px solid rgba(0,255,136,0.4);border-radius:8px;color:#0f8;cursor:pointer">直接过关</button>
+            </div>
+        </div>
+        
+        <div style="text-align:left;margin:15px 0">
+            <div style="color:#888;font-size:11px;margin-bottom:8px">快捷关卡</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px">
+                <button onclick="adminJumpToLevel(1)" style="padding:6px 12px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:6px;color:#fff;cursor:pointer;font-size:12px">第1关</button>
+                <button onclick="adminJumpToLevel(50)" style="padding:6px 12px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:6px;color:#fff;cursor:pointer;font-size:12px">第50关</button>
+                <button onclick="adminJumpToLevel(70)" style="padding:6px 12px;background:rgba(255,100,100,0.2);border:1px solid rgba(255,100,100,0.3);border-radius:6px;color:#f88;cursor:pointer;font-size:12px">第70关</button>
+                <button onclick="adminJumpToLevel(91)" style="padding:6px 12px;background:rgba(255,100,100,0.3);border:1px solid rgba(255,100,100,0.4);border-radius:6px;color:#f66;cursor:pointer;font-size:12px">第91关</button>
+                <button onclick="adminJumpToLevel(100)" style="padding:6px 12px;background:rgba(200,100,255,0.3);border:1px solid rgba(200,100,255,0.4);border-radius:6px;color:#f7a;cursor:pointer;font-size:12px">第100关</button>
+            </div>
+        </div>
+        
+        <div style="display:flex;gap:8px;margin-top:15px">
+            <button onclick="adminLogout()" style="flex:1;padding:10px;background:rgba(255,50,50,0.3);border:1px solid rgba(255,50,50,0.5);border-radius:8px;color:#f55;cursor:pointer;font-weight:bold">退出权限</button>
+            <button onclick="document.getElementById('adminPanel').classList.remove('show')" style="flex:1;padding:10px;background:rgba(255,255,255,0.1);border:none;border-radius:8px;color:#fff;cursor:pointer">关闭面板</button>
+        </div>
+        
+        <div style="margin-top:10px;padding:8px;background:rgba(255,200,0,0.1);border-radius:8px;text-align:center">
+            <div style="color:#888;font-size:10px">提示：输入关卡号(1-100)后点击跳转按钮</div>
+        </div>
+    </div>
+</div>
+
+<script>
+// =====================================================
+// 合成天选打工人 正式版 v1.0
+// 100关 · Canvas渲染 · 触屏优化
+// =====================================================
+
+// ==================== 配置常量 ====================
+const CONFIG = {
+    // 身份配置
+    RANKS: ['😊', '😐', '😏', '😎', '🤓', '😈', '🤴', '👑', '💰', '🏖️'],
+    RANK_NAMES: ['实习生', '打工人', '老油条', '组长', '经理', '总监', 'VP', 'CEO', '董事长', '摸鱼王'],
+    RANK_COLORS: [
+        ['#666', '#444'], ['#0a8', '#067'], ['#08f', '#05a'], ['#84e', '#62d'],
+        ['#fb5', '#e93'], ['#f75', '#d53'], ['#f6a', '#d48'], ['#ff0', '#fc0'],
+        ['#0fa', '#0a8'], ['#f7a', '#e5f']
+    ],
+    
+    // 刷新概率（实习生60%，打工人25%，老油条10%）
+    SPAWN_WEIGHTS: [60, 25, 10, 3, 2],
+    
+    // 段位阈值 - 基于通关关卡数
+    RANK_THRESHOLDS: [0, 10, 20, 35, 50, 65, 80, 90, 98, 100],
+    
+    // 游戏设置
+    MAX_WORKERS: 40,
+    INITIAL_WORKERS: 10,
+    WORKER_SIZE: 50,
+    MERGE_DISTANCE: 45,
+    
+    // 关卡主题
+    THEMES: {
+        office: { name: '职场', bg: '#1a1a2e', gradient: ['#1a1a2e', '#0f0f1a'] },
+        ancient: { name: '古代', bg: '#2a1a0a', gradient: ['#2a1a0a', '#1a0f05'] },
+        xianxia: { name: '修仙', bg: '#0a1a2a', gradient: ['#0a1a2a', '#050f1a'] }
+    },
+    
+    // 🔐 老板专属权限密钥（生逸超专属，勿泄露）
+    ADMIN_KEY: 'SYC_BOSS_2026_MERGE_WORKER_ADMIN',
+    ADMIN_SECRET: '生逸超希望马嘉欣能变得越来越好'
+};
+
+// 🔐 权限验证系统
+function verifyAdmin() {
+    // 检查localStorage中是否有老板权限标记
+    const savedAdmin = localStorage.getItem('merge_worker_admin');
+    if (savedAdmin === CONFIG.ADMIN_KEY) {
+        isAdmin = true;
+        updateAdminButtonState();
+        return true;
+    }
+    
+    // 弹出密码输入框
+    const password = prompt('请输入管理员密码：');
+    if (password === CONFIG.ADMIN_SECRET) {
+        localStorage.setItem('merge_worker_admin', CONFIG.ADMIN_KEY);
+        isAdmin = true;
+        updateAdminButtonState();
+        showToast('管理员权限已激活');
+        return true;
+    } else if (password) {
+        showToast('密码错误');
+    }
+    return false;
+}
+
+function showAdminPanel() {
+    if (!isAdmin) {
+        if (!verifyAdmin()) return;
+    }
+    
+    updateAdminButtonState();
+    
+    // 显示管理员面板
+    const panel = document.getElementById('adminPanel');
+    if (panel) {
+        panel.classList.toggle('show');
+    }
+}
+
+// 关卡阶段配置 - 难度提升（确保每关可通关）
+const LEVEL_STAGES = [
+    { range: [1, 10], name: '热身期', emoji: '🏠', difficulty: 0.15, timeRange: [120, 140], spawnRange: [420, 480], targetMult: 1.0 },
+    { range: [11, 30], name: '成长期', emoji: '📈', difficulty: 0.30, timeRange: [100, 120], spawnRange: [350, 420], targetMult: 1.1 },
+    { range: [31, 50], name: '磨练期', emoji: '💪', difficulty: 0.50, timeRange: [80, 100], spawnRange: [280, 350], targetMult: 1.2 },
+    { range: [51, 70], name: '炼狱期', emoji: '🔥', difficulty: 0.70, timeRange: [65, 85], spawnRange: [220, 280], targetMult: 1.3 },
+    { range: [71, 90], name: '噩梦期', emoji: '💀', difficulty: 0.85, timeRange: [55, 75], spawnRange: [180, 220], targetMult: 1.4 },
+    { range: [91, 100], name: '天选期', emoji: '🏆', difficulty: 1.0, timeRange: [80, 100], spawnRange: [160, 200], targetMult: 1.5 }  // 时间增加确保可通关
+];
+
+// 成就定义 - 30+成就系统
+const ACHIEVEMENTS = [
+    // === 基础成就 ===
+    { id: 'first_merge', name: '初次合成', desc: '完成第一次合成', icon: '🎉', category: 'basic' },
+    
+    // === 摸鱼王系列 (5个) ===
+    { id: 'fish_king_1', name: '摸鱼新手', desc: '合成1个🏖️摸鱼王', icon: '🏖️', category: 'fish_king', target: 1 },
+    { id: 'fish_king_10', name: '摸鱼达人', desc: '合成10个🏖️摸鱼王', icon: '🏖️', category: 'fish_king', target: 10 },
+    { id: 'fish_king_100', name: '摸鱼大师', desc: '合成100个🏖️摸鱼王', icon: '🏖️', category: 'fish_king', target: 100 },
+    { id: 'fish_king_1000', name: '摸鱼传奇', desc: '合成1000个🏖️摸鱼王', icon: '🌟', category: 'fish_king', target: 1000 },
+    { id: 'fish_king_10000', name: '摸鱼之神', desc: '合成10000个🏖️摸鱼王', icon: '👑', category: 'fish_king', target: 10000 },
+    
+    // === 连击系列 (4个) ===
+    { id: 'combo_5', name: '连击新手', desc: '达成5连击', icon: '⚡', category: 'combo', target: 5 },
+    { id: 'combo_12', name: '连击大师', desc: '达成12连击', icon: '🔥', category: 'combo', target: 12 },
+    { id: 'combo_20', name: '连击之神', desc: '达成20连击', icon: '💫', category: 'combo', target: 20 },
+    { id: 'combo_30', name: '连击传说', desc: '达成30连击', icon: '🌈', category: 'combo', target: 30 },
+    
+    // === 速度系列 (4个) ===
+    { id: 'speed_1', name: '闪电侠', desc: '1关20秒内过关', icon: '⚡', category: 'speed', target: 1 },
+    { id: 'speed_10', name: '音速小子', desc: '10关20秒内过关', icon: '💨', category: 'speed', target: 10 },
+    { id: 'speed_30', name: '光速传说', desc: '30关20秒内过关', icon: '🌟', category: 'speed', target: 30 },
+    { id: 'speed_50', name: '时间主宰', desc: '50关20秒内过关', icon: '⏰', category: 'speed', target: 50 },
+    
+    // === 关卡系列 (10个) ===
+    { id: 'level_10', name: '小有所成', desc: '通过第10关', icon: '🎯', category: 'level', target: 10 },
+    { id: 'level_20', name: '渐入佳境', desc: '通过第20关', icon: '🎯', category: 'level', target: 20 },
+    { id: 'level_30', name: '初露锋芒', desc: '通过第30关', icon: '⚔️', category: 'level', target: 30 },
+    { id: 'level_40', name: '独当一面', desc: '通过第40关', icon: '🛡️', category: 'level', target: 40 },
+    { id: 'level_50', name: '身经百战', desc: '通过第50关', icon: '🛡️', category: 'level', target: 50 },
+    { id: 'level_60', name: '炉火纯青', desc: '通过第60关', icon: '🔥', category: 'level', target: 60 },
+    { id: 'level_70', name: '地狱幸存者', desc: '通过第70关', icon: '😈', category: 'level', target: 70 },
+    { id: 'level_80', name: '绝境求生', desc: '通过第80关', icon: '💀', category: 'level', target: 80 },
+    { id: 'level_90', name: '噩梦征服者', desc: '通过第90关', icon: '💀', category: 'level', target: 90 },
+    { id: 'level_100', name: '天选之人', desc: '通关全部100关', icon: '🏆', category: 'level', target: 100 },
+    
+    // === 隐藏成就 (3个) ===
+    { id: 'no_item', name: '裸奔大师', desc: '不使用任何道具通关一关', icon: '💎', category: 'hidden', hidden: true },
+    { id: 'speed_master', name: '速度狂魔', desc: '累计100关20秒内过关', icon: '⏰', category: 'hidden', hidden: true },
+    { id: 'dedication', name: '打工魂', desc: '累计游戏时间10小时', icon: '💪', category: 'hidden', hidden: true }
+];
+
+// ==================== 游戏状态 ====================
+let game = {
+    // 状态
+    state: 'menu', // menu, playing, paused, win, fail
+    level: 1,
+    maxLevel: 0, // 最高通关关卡数，用于段位
+    score: 0,
+    totalScore: 0,
+    time: 150,
+    combo: 0,
+    maxCombo: 0,
+    lastMergeTime: 0,
+    
+    // 道具
+    shuffles: 3,
+    bombs: 1,
+    addTimeUsed: 0,     // 本局已使用加时次数
+    reviveUsed: false,  // 本关是否已复活
+    itemUsedThisLevel: false, // 本关是否使用过道具
+    
+    // 工人
+    workers: [],
+    nextRank: 0,
+    
+    // 目标
+    targets: [],
+    targetProgress: {},
+    
+    // 成就
+    achievements: {},
+    
+    // 统计数据
+    stats: {
+        totalFishKings: 0,      // 累计摸鱼王数量
+        speedClearCount: 0,     // 20秒内过关次数
+        maxCombo: 0,            // 最高连击
+        totalPlayTime: 0,       // 累计游戏时间（秒）
+        totalMerges: 0,         // 累计合成次数
+        totalGames: 0           // 累计游戏局数
+    },
+    
+    // 皮肤
+    skin: 'office',
+    
+    // 每日挑战
+    dailyChallenge: null,
+    dailyProgress: 0,
+    
+    // 教程
+    tutorialStep: 0,
+    tutorialDone: false
+};
+
+// 常量
+const MAX_ADD_TIME = 3;  // 每局最多加时3次
+
+// Canvas相关
+let canvas, ctx;
+let canvasWidth, canvasHeight;
+
+// 定时器
+let gameTimer = null;
+let spawnTimer = null;
+
+// 拖动状态
+let dragging = null;
+let dragOffsetX = 0, dragOffsetY = 0;
+let lastClickTime = 0;  // 点击冷却
+const CLICK_COOLDOWN = 100;  // 100毫秒点击冷却
+
+// 音频上下文
+let audioCtx = null;
+
+// 🔐 管理员权限状态
+let isAdmin = false;
+
+// 更新管理员按钮状态（必须在使用前定义）
+function updateAdminButtonState() {
+    const btn = document.getElementById('adminBtn');
+    if (btn) {
+        btn.style.opacity = isAdmin ? '1' : '0.5';
+        const label = btn.querySelector('.tool-label');
+        if (label) {
+            label.textContent = isAdmin ? '管理ON' : '管理';
+        }
+    }
+}
+
+// ==================== 初始化 ====================
+function init() {
+    try {
+        canvas = document.getElementById('gameCanvas');
+        ctx = canvas.getContext('2d');
+        
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        // 事件绑定
+        bindEvents();
+        
+        // 加载存档
+        loadSave();
+        
+        // 初始化每日挑战
+        initDailyChallenge();
+        
+        // 初始化管理员按钮状态
+        const savedAdmin = localStorage.getItem('merge_worker_admin');
+        if (savedAdmin === CONFIG.ADMIN_KEY) {
+            isAdmin = true;
+        }
+        updateAdminButtonState();
+        
+        // 更新UI
+        updateUI();
+        
+        // 显示开始弹窗
+        if (hasSave()) {
+            document.getElementById('continueBtn').style.display = 'block';
+        }
+        
+        // 开始渲染循环
+        requestAnimationFrame(gameLoop);
+    } catch (e) {
+        console.error('Init error:', e);
+        alert('游戏初始化失败：' + e.message);
+    }
+}
+
+function resizeCanvas() {
+    const board = document.getElementById('gameBoard');
+    canvas.width = board.offsetWidth;
+    canvas.height = board.offsetHeight;
+    canvasWidth = canvas.width;
+    canvasHeight = canvas.height;
+}
+
+// ==================== 事件绑定 ====================
+function bindEvents() {
+    // 开始按钮
+    document.getElementById('startBtn').addEventListener('click', startGame);
+    document.getElementById('continueBtn').addEventListener('click', continueGame);
+    
+    // 过关/失败按钮
+    document.getElementById('nextLevelBtn').addEventListener('click', nextLevel);
+    document.getElementById('reviveBtn').addEventListener('click', revive);
+    document.getElementById('retryBtn').addEventListener('click', restartGame);
+    document.getElementById('shareBtn').addEventListener('click', shareResult);
+    document.getElementById('victoryShareBtn').addEventListener('click', shareResult);
+    document.getElementById('replayBtn').addEventListener('click', restartGame);
+    
+    // 工具按钮
+    document.getElementById('shuffleBtn').addEventListener('click', useShuffle);
+    document.getElementById('addTimeBtn').addEventListener('click', useAddTime);
+    document.getElementById('bombBtn').addEventListener('click', useBomb);
+    document.getElementById('achievementsBtn').addEventListener('click', showAchievements);
+    document.getElementById('mapBtn').addEventListener('click', showLevelMap);
+    
+    // 弹窗关闭
+    document.getElementById('closeAchievementsBtn').addEventListener('click', () => {
+        document.getElementById('achievementsModal').classList.remove('show');
+    });
+    document.getElementById('closeMapBtn').addEventListener('click', () => {
+        document.getElementById('levelMapModal').classList.remove('show');
+    });
+    
+    // 管理员按钮
+    document.getElementById('adminBtn').addEventListener('click', showAdminPanel);
+    
+    // 教程
+    document.getElementById('tutorialNextBtn').addEventListener('click', nextTutorial);
+    
+    // 皮肤选择
+    document.querySelectorAll('.skin-option').forEach(el => {
+        el.addEventListener('click', () => {
+            if (el.classList.contains('locked')) {
+                showToast('该皮肤暂未解锁');
+                return;
+            }
+            document.querySelectorAll('.skin-option').forEach(e => e.classList.remove('active'));
+            el.classList.add('active');
+            game.skin = el.dataset.skin;
+        });
+    });
+    
+    // Canvas事件
+    canvas.addEventListener('mousedown', handleMouseDown);
+    canvas.addEventListener('mousemove', handleMouseMove);
+    canvas.addEventListener('mouseup', handleMouseUp);
+    canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+    canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+    canvas.addEventListener('touchend', handleTouchEnd);
+}
+
+// ==================== 关卡生成 ====================
+function generateLevel(levelNum) {
+    // 找到关卡所属阶段
+    let stage = LEVEL_STAGES.find(s => levelNum >= s.range[0] && levelNum <= s.range[1]);
+    if (!stage) stage = LEVEL_STAGES[LEVEL_STAGES.length - 1];
+    
+    const stageProgress = (levelNum - stage.range[0]) / (stage.range[1] - stage.range[0] + 1);
+    const difficulty = stage.difficulty + stageProgress * 0.15;
+    const targetMult = stage.targetMult || 1.0;
+    
+    // 生成目标
+    const targets = [];
+    
+    // 基础目标（根据难度调整数量和等级）
+    const baseCounts = [
+        { rank: 1, count: Math.floor((18 + difficulty * 28) * targetMult) },
+        { rank: 2, count: Math.floor((6 + difficulty * 20) * targetMult) },
+        { rank: 3, count: Math.floor((3 + difficulty * 14) * targetMult) }
+    ];
+    
+    // 添加高级目标
+    if (difficulty > 0.2) targets.push({ rank: 4, count: Math.floor((1 + difficulty * 10) * targetMult) });
+    if (difficulty > 0.35) targets.push({ rank: 5, count: Math.floor((1 + difficulty * 6) * targetMult) });
+    if (difficulty > 0.5) targets.push({ rank: 6, count: Math.floor((1 + difficulty * 4) * targetMult) });
+    if (difficulty > 0.65) targets.push({ rank: 7, count: Math.floor((1 + difficulty * 3) * targetMult) });
+    if (difficulty > 0.8) targets.push({ rank: 8, count: Math.floor((1 + difficulty * 2) * targetMult) });
+    
+    // 最后10关需要摸鱼王（调整数量确保可通关）
+    if (levelNum >= 91 && levelNum <= 95) targets.push({ rank: 9, count: 1 });
+    if (levelNum >= 96 && levelNum <= 98) targets.push({ rank: 9, count: 1 });
+    if (levelNum >= 99) targets.push({ rank: 9, count: 2 });  // 99-100关需要2个摸鱼王
+    
+    baseCounts.forEach(t => {
+        if (t.count > 0) targets.push(t);
+    });
+    
+    // 计算时间
+    const time = Math.floor(stage.timeRange[0] + (stage.timeRange[1] - stage.timeRange[0]) * (1 - stageProgress * 0.3));
+    
+    // 计算生成间隔
+    const spawnInterval = Math.floor(stage.spawnRange[0] + (stage.spawnRange[1] - stage.spawnRange[0]) * Math.random());
+    
+    return {
+        level: levelNum,
+        targets,
+        time,
+        spawnInterval,
+        stageName: stage.name,
+        stageEmoji: stage.emoji
+    };
+}
+
+// ==================== 游戏控制 ====================
+function startGame() {
+    document.getElementById('startModal').classList.remove('show');
+    game.level = 1;
+    game.maxLevel = 0;
+    game.score = 0;
+    game.totalScore = 0;
+    game.achievements = {};
+    
+    // 确保stats存在
+    if (!game.stats) {
+        game.stats = {
+            totalFishKings: 0,
+            speedClearCount: 0,
+            maxCombo: 0,
+            totalPlayTime: 0,
+            totalMerges: 0,
+            totalGames: 0
+        };
+    }
+    game.stats.totalGames++;
+    
+    beginLevel();
+    
+    if (!game.tutorialDone) {
+        showTutorial();
+    }
+}
+
+function continueGame() {
+    const save = loadSave();
+    if (save) {
+        game.level = save.level || 1;
+        game.maxLevel = save.maxLevel || 0;
+        game.score = save.score || 0;
+        game.totalScore = save.totalScore || 0;
+        game.achievements = save.achievements || {};
+        game.stats = save.stats || game.stats;
+    }
+    document.getElementById('startModal').classList.remove('show');
+    beginLevel();
+}
+
+function beginLevel() {
+    const levelData = generateLevel(game.level);
+    
+    // 重置状态
+    game.state = 'playing';
+    game.time = levelData.time;
+    game.combo = 0;
+    game.maxCombo = 0;
+    game.shuffles = 3;
+    game.bombs = 1;
+    game.reviveUsed = false;  // 重置复活状态
+    game.itemUsedThisLevel = false;  // 重置道具使用状态
+    game.workers = [];
+    game.targets = levelData.targets;
+    game.targetProgress = {};
+    game.spawnInterval = levelData.spawnInterval;
+    
+    // 初始化目标进度
+    levelData.targets.forEach(t => {
+        game.targetProgress[t.rank] = 0;
+    });
+    
+    // 更新UI
+    updateLevelUI(levelData);
+    updateTargetsUI();
+    updateRankUI();
+    
+    // 更新加时按钮状态
+    updateAddTimeButton();
+    
+    // 生成初始工人
+    for (let i = 0; i < CONFIG.INITIAL_WORKERS; i++) {
+        setTimeout(() => spawnWorker(), i * 50);
+    }
+    
+    // 启动定时器
+    gameTimer = setInterval(gameTick, 1000);
+    scheduleSpawn();
+}
+
+function updateAddTimeButton() {
+    const btn = document.getElementById('addTimeBtn');
+    const remaining = MAX_ADD_TIME - game.addTimeUsed;
+    if (remaining <= 0) {
+        btn.classList.add('disabled');
+        btn.querySelector('.tool-label').innerHTML = '加时已用完';
+    } else {
+        btn.classList.remove('disabled');
+        btn.querySelector('.tool-label').innerHTML = `加时(${remaining})`;
+    }
+}
+
+function updateLevelUI(levelData) {
+    document.getElementById('levelBadge').textContent = `第 ${game.level} 关`;
+    document.getElementById('levelChapter').textContent = `${levelData.stageEmoji} ${levelData.stageName}`;
+    document.getElementById('scoreDisplay').textContent = game.score;
+    document.getElementById('timerDisplay').textContent = game.time;
+    document.getElementById('timerDisplay').classList.remove('warning');
+    document.getElementById('shuffleCount').textContent = game.shuffles;
+    document.getElementById('bombCount').textContent = game.bombs;
+}
+
+function updateTargetsUI() {
+    const grid = document.getElementById('targetsGrid');
+    grid.innerHTML = '';
+    
+    game.targets.forEach(t => {
+        const progress = game.targetProgress[t.rank] || 0;
+        const completed = progress >= t.count;
+        
+        const chip = document.createElement('div');
+        chip.className = 'target-chip' + (completed ? ' completed' : '');
+        chip.innerHTML = `
+            <span class="target-emoji">${CONFIG.RANKS[t.rank]}</span>
+            <span>${progress}/${t.count}</span>
+        `;
+        grid.appendChild(chip);
+    });
+}
+
+function updateRankUI() {
+    const rankIndex = getCurrentRankIndex();
+    const currentRank = CONFIG.RANKS[rankIndex] + ' ' + CONFIG.RANK_NAMES[rankIndex];
+    const nextRank = rankIndex < 9 ? CONFIG.RANKS[rankIndex + 1] + ' ' + CONFIG.RANK_NAMES[rankIndex + 1] : '已满级';
+    
+    document.getElementById('currentRank').textContent = currentRank;
+    document.getElementById('nextRankInfo').textContent = '下一: ' + nextRank;
+    
+    // 进度条 - 基于关卡数
+    const maxLevel = game.maxLevel || 0;
+    const currentThreshold = CONFIG.RANK_THRESHOLDS[rankIndex];
+    const nextThreshold = rankIndex < 9 ? CONFIG.RANK_THRESHOLDS[rankIndex + 1] : CONFIG.RANK_THRESHOLDS[9];
+    const progress = rankIndex >= 9 ? 100 : ((maxLevel - currentThreshold) / (nextThreshold - currentThreshold) * 100);
+    document.getElementById('rankProgress').style.width = Math.min(100, Math.max(0, progress)) + '%';
+}
+
+function getCurrentRankIndex() {
+    // 段位基于最高通关关卡数
+    const maxLevel = game.maxLevel || 0;
+    for (let i = CONFIG.RANK_THRESHOLDS.length - 1; i >= 0; i--) {
+        if (maxLevel >= CONFIG.RANK_THRESHOLDS[i]) return i;
+    }
+    return 0;
+}
+
+function gameTick() {
+    game.time--;
+    const timerEl = document.getElementById('timerDisplay');
+    timerEl.textContent = game.time;
+    
+    if (game.time <= 10) {
+        timerEl.classList.add('warning');
+    }
+    
+    if (game.time <= 0) {
+        gameOver();
+    }
+}
+
+function scheduleSpawn() {
+    if (game.state !== 'playing') return;
+    
+    const delay = game.spawnInterval * (0.5 + Math.random() * 0.5);
+    spawnTimer = setTimeout(() => {
+        if (game.workers.length < CONFIG.MAX_WORKERS) {
+            spawnWorker();
+        }
+        scheduleSpawn();
+    }, delay);
+}
+
+// ==================== 工人管理 ====================
+function spawnWorker() {
+    if (game.state !== 'playing') return;
+    
+    // 计算刷新等级
+    const maxTargetRank = Math.max(...game.targets.map(t => t.rank));
+    const maxSpawnRank = Math.min(maxTargetRank - 1, 4);
+    
+    // 使用权重计算
+    let weights = [...CONFIG.SPAWN_WEIGHTS];
+    const totalWeight = weights.reduce((a, b) => a + b, 0);
+    let cumulative = 0;
+    const rand = Math.random() * totalWeight;
+    
+    let rank = 0;
+    for (let i = 0; i <= maxSpawnRank && i < weights.length; i++) {
+        cumulative += weights[i];
+        if (rand < cumulative) {
+            rank = i;
+            break;
+        }
+        rank = Math.min(maxSpawnRank, weights.length - 1);
+    }
+    
+    // 极低概率刷新高级
+    if (Math.random() > 0.997 && maxTargetRank >= 5) {
+        rank = Math.min(maxTargetRank, 5 + Math.floor(Math.random() * 2));
+    }
+    
+    const worker = {
+        id: Date.now() + Math.random(),
+        rank,
+        x: 10 + Math.random() * (canvasWidth - CONFIG.WORKER_SIZE - 20),
+        y: 50 + Math.random() * (canvasHeight - CONFIG.WORKER_SIZE - 60),
+        scale: 1,
+        spawnAnim: 1
+    };
+    
+    game.workers.push(worker);
+    
+    // 更新下一个预览
+    game.nextRank = Math.floor(Math.random() * Math.min(3, maxSpawnRank + 1));
+    document.getElementById('nextPreview').textContent = CONFIG.RANKS[game.nextRank];
+}
+
+// ==================== 绘制 ====================
+function gameLoop() {
+    // 清空画布
+    ctx.fillStyle = CONFIG.THEMES[game.skin].bg;
+    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+    
+    // 绘制工人
+    game.workers.forEach(worker => {
+        drawWorker(worker);
+    });
+    
+    requestAnimationFrame(gameLoop);
+}
+
+function drawWorker(worker) {
+    const x = worker.x;
+    const y = worker.y;
+    const size = CONFIG.WORKER_SIZE;
+    const scale = worker.scale * (1 - worker.spawnAnim * 0.5);
+    
+    ctx.save();
+    ctx.translate(x + size/2, y + size/2);
+    ctx.scale(scale, scale);
+    
+    // 背景
+    const colors = CONFIG.RANK_COLORS[worker.rank];
+    const gradient = ctx.createLinearGradient(-size/2, -size/2, size/2, size/2);
+    gradient.addColorStop(0, colors[0]);
+    gradient.addColorStop(1, colors[1]);
+    
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.roundRect(-size/2, -size/2, size, size, 10);
+    ctx.fill();
+    
+    // 边框
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    
+    // 高级身份发光
+    if (worker.rank >= 7) {
+        ctx.shadowColor = colors[0];
+        ctx.shadowBlur = 15;
+        ctx.fill();
+    }
+    
+    // Emoji
+    ctx.shadowBlur = 0;
+    ctx.font = `${size * 0.5}px Arial`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#fff';
+    ctx.fillText(CONFIG.RANKS[worker.rank], 0, 0);
+    
+    ctx.restore();
+    
+    // 生成动画
+    if (worker.spawnAnim > 0) {
+        worker.spawnAnim -= 0.1;
+        if (worker.spawnAnim < 0) worker.spawnAnim = 0;
+    }
+}
+
+// ==================== 交互处理 ====================
+function handleMouseDown(e) {
+    if (game.state !== 'playing') return;
+    
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    startDrag(x, y);
+}
+
+function handleMouseMove(e) {
+    if (!dragging || game.state !== 'playing') return;
+    
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    moveDrag(x, y);
+}
+
+function handleMouseUp(e) {
+    if (dragging) {
+        endDrag();
+    }
+}
+
+function handleTouchStart(e) {
+    if (game.state !== 'playing') return;
+    e.preventDefault();
+    
+    const touch = e.touches[0];
+    const rect = canvas.getBoundingClientRect();
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+    
+    startDrag(x, y);
+}
+
+function handleTouchMove(e) {
+    if (!dragging || game.state !== 'playing') return;
+    e.preventDefault();
+    
+    const touch = e.touches[0];
+    const rect = canvas.getBoundingClientRect();
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+    
+    moveDrag(x, y);
+}
+
+function handleTouchEnd(e) {
+    if (dragging) {
+        endDrag();
+    }
+}
+
+function startDrag(x, y) {
+    // 点击冷却检查
+    const now = Date.now();
+    if (now - lastClickTime < CLICK_COOLDOWN) return;
+    lastClickTime = now;
+    
+    // 找到点击的工人
+    for (let i = game.workers.length - 1; i >= 0; i--) {
+        const w = game.workers[i];
+        if (x >= w.x && x <= w.x + CONFIG.WORKER_SIZE && y >= w.y && y <= w.y + CONFIG.WORKER_SIZE) {
+            dragging = w;
+            dragOffsetX = x - w.x;
+            dragOffsetY = y - w.y;
+            w.scale = 1.15;
+            break;
+        }
+    }
+}
+
+function moveDrag(x, y) {
+    if (!dragging) return;
+    
+    dragging.x = Math.max(0, Math.min(canvasWidth - CONFIG.WORKER_SIZE, x - dragOffsetX));
+    dragging.y = Math.max(40, Math.min(canvasHeight - CONFIG.WORKER_SIZE - 20, y - dragOffsetY));
+}
+
+function endDrag() {
+    if (!dragging) return;
+    
+    dragging.scale = 1;
+    checkMerge(dragging);
+    dragging = null;
+}
+
+function checkMerge(worker) {
+    for (let i = game.workers.length - 1; i >= 0; i--) {
+        const other = game.workers[i];
+        if (other.id === worker.id || other.rank !== worker.rank) continue;
+        
+        const dx = other.x - worker.x;
+        const dy = other.y - worker.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        
+        if (dist < CONFIG.MERGE_DISTANCE) {
+            // 合成
+            const newRank = worker.rank + 1;
+            const newX = (worker.x + other.x) / 2;
+            const newY = (worker.y + other.y) / 2;
+            
+            // 移除旧的
+            game.workers = game.workers.filter(w => w.id !== worker.id && w.id !== other.id);
+            
+            if (newRank < CONFIG.RANKS.length) {
+                // 创建新的
+                const newWorker = {
+                    id: Date.now() + Math.random(),
+                    rank: newRank,
+                    x: newX,
+                    y: newY,
+                    scale: 1,
+                    spawnAnim: 0
+                };
+                game.workers.push(newWorker);
+                
+                // 播放音效
+                playSound('merge');
+                
+                // 检查成就
+                checkAchievements(newRank);
+                
+                // 更新目标
+                if (game.targetProgress.hasOwnProperty(newRank)) {
+                    game.targetProgress[newRank]++;
+                    updateTargetsUI();
+                    
+                    if (checkAllTargetsComplete()) {
+                        levelComplete();
+                    }
+                }
+                
+                // 连击
+                const now = Date.now();
+                if (now - game.lastMergeTime < 1200) {
+                    game.combo++;
+                    if (game.combo > game.maxCombo) game.maxCombo = game.combo;
+                    showCombo(game.combo);
+                    if (game.combo >= 5) playSound('combo');
+                } else {
+                    game.combo = 1;
+                }
+                game.lastMergeTime = now;
+                
+                // 计分
+                const points = (newRank + 1) * 10 * game.combo;
+                game.score += points;
+                game.totalScore += points;
+                document.getElementById('scoreDisplay').textContent = game.score;
+                updateRankUI();
+                
+                // 分数弹出
+                showScorePopup(newX, newY, '+' + points);
+            }
+            
+            break;
+        }
+    }
+}
+
+function checkAllTargetsComplete() {
+    return game.targets.every(t => (game.targetProgress[t.rank] || 0) >= t.count);
+}
+
+// ==================== 道具功能 ====================
+function useShuffle() {
+    if (game.shuffles <= 0) {
+        showToast('次数用完了');
+        return;
+    }
+    
+    game.shuffles--;
+    game.itemUsedThisLevel = true;
+    document.getElementById('shuffleCount').textContent = game.shuffles;
+    
+    game.workers.forEach(w => {
+        w.x = 10 + Math.random() * (canvasWidth - CONFIG.WORKER_SIZE - 20);
+        w.y = 50 + Math.random() * (canvasHeight - CONFIG.WORKER_SIZE - 60);
+    });
+    
+    showToast('洗牌成功！');
+    saveGame();
+}
+
+function useAddTime() {
+    // 检查加时次数限制
+    if (game.addTimeUsed >= MAX_ADD_TIME) {
+        showToast('本局加时次数已用完！');
+        return;
+    }
+    
+    game.itemUsedThisLevel = true;
+    
+    showToast('观看广告 +30秒');
+    setTimeout(() => {
+        game.addTimeUsed++;
+        game.time += 30;
+        document.getElementById('timerDisplay').textContent = game.time;
+        document.getElementById('timerDisplay').classList.remove('warning');
+        updateAddTimeButton();
+        showToast('时间已增加！');
+    }, 1000);
+}
+
+function useBomb() {
+    if (game.bombs <= 0) {
+        showToast('炸弹用完了');
+        return;
+    }
+    
+    game.bombs--;
+    game.itemUsedThisLevel = true;
+    document.getElementById('bombCount').textContent = game.bombs;
+    
+    // 移除等级最低的3个
+    const sorted = [...game.workers].sort((a, b) => a.rank - b.rank);
+    sorted.slice(0, 3).forEach(w => {
+        game.workers = game.workers.filter(worker => worker.id !== w.id);
+    });
+    
+    showToast('炸弹爆炸！');
+    saveGame();
+}
+
+// ==================== 游戏结束 ====================
+function levelComplete() {
+    game.state = 'win';
+    clearInterval(gameTimer);
+    clearTimeout(spawnTimer);
+    
+    // 更新最高通关关卡
+    if (game.level > game.maxLevel) {
+        game.maxLevel = game.level;
+    }
+    
+    // 检查速度成就（20秒内过关 = 剩余时间>=130秒，假设初始150秒）
+    const levelData = generateLevel(game.level);
+    const initialTime = levelData.time;
+    const usedTime = initialTime - game.time;
+    
+    if (usedTime <= 20) {
+        game.stats.speedClearCount++;
+        unlockAchievement('speed_1');
+        if (game.stats.speedClearCount >= 10) unlockAchievement('speed_10');
+        if (game.stats.speedClearCount >= 30) unlockAchievement('speed_30');
+        if (game.stats.speedClearCount >= 50) unlockAchievement('speed_50');
+    }
+    
+    // 检查不使用道具成就
+    if (!game.itemUsedThisLevel) {
+        unlockAchievement('no_item');
+    }
+    
+    // 关卡成就
+    if (game.level >= 10) unlockAchievement('level_10');
+    if (game.level >= 20) unlockAchievement('level_20');
+    if (game.level >= 30) unlockAchievement('level_30');
+    if (game.level >= 40) unlockAchievement('level_40');
+    if (game.level >= 50) unlockAchievement('level_50');
+    if (game.level >= 60) unlockAchievement('level_60');
+    if (game.level >= 70) unlockAchievement('level_70');
+    if (game.level >= 80) unlockAchievement('level_80');
+    if (game.level >= 90) unlockAchievement('level_90');
+    if (game.level >= 100) unlockAchievement('level_100');
+    
+    // 计算奖励
+    const timeBonus = game.time * 5;
+    game.score += timeBonus;
+    game.totalScore += timeBonus;
+    
+    playSound('win');
+    saveGame();
+    
+    // 显示弹窗
+    const rankIndex = getCurrentRankIndex();
+    document.getElementById('winSubtitle').textContent = `第 ${game.level} 关完成`;
+    document.getElementById('winScore').textContent = game.score;
+    document.getElementById('winTimeBonus').textContent = '+' + timeBonus;
+    document.getElementById('winRank').textContent = CONFIG.RANKS[rankIndex] + ' ' + CONFIG.RANK_NAMES[rankIndex];
+    document.getElementById('winModal').classList.add('show');
+}
+
+function gameOver() {
+    game.state = 'fail';
+    clearInterval(gameTimer);
+    clearTimeout(spawnTimer);
+    
+    playSound('fail');
+    
+    const rankIndex = getCurrentRankIndex();
+    document.getElementById('failSubtitle').textContent = `在第 ${game.level} 关倒下了`;
+    document.getElementById('failScore').textContent = game.score;
+    document.getElementById('failRank').textContent = CONFIG.RANKS[rankIndex] + ' ' + CONFIG.RANK_NAMES[rankIndex];
+    document.getElementById('failModal').classList.add('show');
+}
+
+function nextLevel() {
+    document.getElementById('winModal').classList.remove('show');
+    game.level++;
+    saveGame();
+    
+    if (game.level > 100) {
+        showVictory();
+    } else {
+        beginLevel();
+    }
+}
+
+function showVictory() {
+    game.state = 'victory';
+    unlockAchievement('level_100');
+    
+    // 速度大师成就
+    if (game.stats.speedClearCount >= 100) {
+        unlockAchievement('speed_master');
+    }
+    
+    playSound('win');
+    
+    const rankIndex = getCurrentRankIndex();
+    document.getElementById('victoryScore').textContent = game.score;
+    document.getElementById('victoryRank').textContent = CONFIG.RANKS[rankIndex] + ' ' + CONFIG.RANK_NAMES[rankIndex];
+    document.getElementById('victoryModal').classList.add('show');
+    
+    // 清除存档
+    localStorage.removeItem('mergeWorkerProSave');
+}
+
+function revive() {
+    // 检查是否已复活过
+    if (game.reviveUsed) {
+        showToast('本关已复活过，无法再次复活！');
+        return;
+    }
+    
+    showToast('观看广告复活...');
+    setTimeout(() => {
+        game.reviveUsed = true;
+        document.getElementById('failModal').classList.remove('show');
+        game.time = 60;
+        game.shuffles = 1;
+        game.bombs = 0;
+        game.state = 'playing';
+        gameTimer = setInterval(gameTick, 1000);
+        scheduleSpawn();
+    }, 1500);
+}
+
+function restartGame() {
+    document.getElementById('failModal').classList.remove('show');
+    document.getElementById('victoryModal').classList.remove('show');
+    game.level = 1;
+    game.maxLevel = 0;
+    game.score = 0;
+    game.totalScore = 0;
+    game.addTimeUsed = 0;
+    game.stats.totalGames++;
+    localStorage.removeItem('mergeWorkerProSave');
+    beginLevel();
+}
+
+// ==================== 成就系统 ====================
+function checkAchievements(newRank) {
+    // 第一次合成
+    if (Object.keys(game.achievements).length === 0) {
+        unlockAchievement('first_merge');
+    }
+    
+    // 更新合成统计
+    game.stats.totalMerges++;
+    
+    // 连击成就
+    if (game.combo >= 5) unlockAchievement('combo_5');
+    if (game.combo >= 12) unlockAchievement('combo_12');
+    if (game.combo >= 20) unlockAchievement('combo_20');
+    if (game.combo >= 30) unlockAchievement('combo_30');
+    
+    // 更新最高连击
+    if (game.combo > game.stats.maxCombo) {
+        game.stats.maxCombo = game.combo;
+    }
+    
+    // 摸鱼王成就
+    if (newRank === 9) {
+        game.stats.totalFishKings++;
+        
+        if (game.stats.totalFishKings >= 1) unlockAchievement('fish_king_1');
+        if (game.stats.totalFishKings >= 10) unlockAchievement('fish_king_10');
+        if (game.stats.totalFishKings >= 100) unlockAchievement('fish_king_100');
+        if (game.stats.totalFishKings >= 1000) unlockAchievement('fish_king_1000');
+        if (game.stats.totalFishKings >= 10000) unlockAchievement('fish_king_10000');
+    }
+}
+
+function unlockAchievement(id) {
+    if (game.achievements[id]) return;
+    
+    const ach = ACHIEVEMENTS.find(a => a.id === id);
+    if (!ach) return;
+    
+    game.achievements[id] = true;
+    showAchievementNotification(ach);
+    playSound('achievement');
+    saveGame();
+}
+
+function showAchievementNotification(ach) {
+    const el = document.getElementById('achievementNotification');
+    el.textContent = `🏆 ${ach.name}: ${ach.desc}`;
+    el.classList.remove('show');
+    void el.offsetWidth;
+    el.classList.add('show');
+}
+
+function showAchievements() {
+    const list = document.getElementById('achievementsList');
+    list.innerHTML = '';
+    
+    // 按分类显示成就
+    const categories = {
+        'fish_king': { name: '🏖️ 摸鱼王系列', achievements: [] },
+        'combo': { name: '⚡ 连击系列', achievements: [] },
+        'speed': { name: '💨 速度系列', achievements: [] },
+        'level': { name: '🎯 关卡系列', achievements: [] },
+        'hidden': { name: '💎 隐藏成就', achievements: [] },
+        'basic': { name: '🎉 基础成就', achievements: [] }
+    };
+    
+    ACHIEVEMENTS.forEach(a => {
+        const cat = a.category || 'basic';
+        if (categories[cat]) {
+            categories[cat].achievements.push(a);
+        }
+    });
+    
+    Object.values(categories).forEach(cat => {
+        if (cat.achievements.length === 0) return;
+        
+        // 分类标题
+        const title = document.createElement('div');
+        title.style.cssText = 'color:#ffd700;font-size:12px;font-weight:bold;margin:10px 0 5px 0;padding-left:5px';
+        title.textContent = cat.name;
+        list.appendChild(title);
+        
+        cat.achievements.forEach(a => {
+            const completed = game.achievements[a.id];
+            const hidden = a.hidden && !completed;
+            
+            const row = document.createElement('div');
+            row.className = 'achievement-row' + (completed ? ' completed' : '') + (hidden ? ' locked' : '');
+            
+            // 进度显示
+            let progressText = '';
+            if (a.target && !completed) {
+                let current = 0;
+                if (a.category === 'fish_king') current = game.stats.totalFishKings;
+                else if (a.category === 'speed') current = game.stats.speedClearCount;
+                else if (a.category === 'combo') current = game.stats.maxCombo;
+                progressText = ` <span style="color:#888">(${current}/${a.target})</span>`;
+            }
+            
+            row.innerHTML = `
+                <span class="achievement-icon">${completed ? a.icon : '🔒'}</span>
+                <div class="achievement-info">
+                    <div class="achievement-name">${hidden ? '???' : a.name}</div>
+                    <div class="achievement-desc">${hidden ? '完成特定条件解锁' : a.desc}${progressText}</div>
+                </div>
+            `;
+            list.appendChild(row);
+        });
+    });
+    
+    document.getElementById('achievementsModal').classList.add('show');
+}
+
+// ==================== 关卡地图 ====================
+function showLevelMap() {
+    const grid = document.getElementById('levelMapGrid');
+    grid.innerHTML = '';
+    
+    for (let i = 1; i <= 100; i++) {
+        const node = document.createElement('div');
+        const isCompleted = i < game.level;
+        const isCurrent = i === game.level;
+        const isLocked = i > game.level;
+        
+        node.className = 'level-node' + 
+            (isCompleted ? ' completed' : '') + 
+            (isCurrent ? ' current' : '') + 
+            (isLocked ? ' locked' : '');
+        
+        const stage = LEVEL_STAGES.find(s => i >= s.range[0] && i <= s.range[1]);
+        node.style.background = `linear-gradient(135deg, ${CONFIG.RANK_COLORS[Math.min(Math.floor(i/10), 9)][0]}, ${CONFIG.RANK_COLORS[Math.min(Math.floor(i/10), 9)][1]})`;
+        
+        node.innerHTML = `
+            <div>${i}</div>
+            <div class="level-node-stars">${isCompleted ? '⭐'.repeat(Math.min(3, Math.floor(Math.random() * 3) + 1)) : ''}</div>
+        `;
+        
+        if (!isLocked) {
+            node.addEventListener('click', () => {
+                document.getElementById('levelMapModal').classList.remove('show');
+                game.level = i;
+                beginLevel();
+            });
+        }
+        
+        grid.appendChild(node);
+    }
+    
+    document.getElementById('levelMapModal').classList.add('show');
+}
+
+// ==================== 每日挑战 ====================
+function initDailyChallenge() {
+    const today = new Date().toDateString();
+    const savedDate = localStorage.getItem('dailyDate');
+    
+    if (savedDate === today) {
+        game.dailyChallenge = JSON.parse(localStorage.getItem('dailyChallenge'));
+        game.dailyProgress = parseInt(localStorage.getItem('dailyProgress') || '0');
+    } else {
+        const challenges = [
+            { type: 'merge_rank', rank: 3, count: 5, reward: '💎洗牌+2' },
+            { type: 'merge_rank', rank: 4, count: 3, reward: '💎炸弹+1' },
+            { type: 'combo', count: 8, reward: '💎加时道具' },
+            { type: 'score', count: 20000, reward: '💎分数x1.5' }  // 从2000改为20000
+        ];
+        game.dailyChallenge = challenges[new Date().getDate() % challenges.length];
+        game.dailyProgress = 0;
+        localStorage.setItem('dailyDate', today);
+        localStorage.setItem('dailyChallenge', JSON.stringify(game.dailyChallenge));
+        localStorage.setItem('dailyProgress', '0');
+    }
+    
+    updateDailyDisplay();
+}
+
+function updateDailyDisplay() {
+    if (!game.dailyChallenge) return;
+    
+    let text = '';
+    if (game.dailyChallenge.type === 'merge_rank') {
+        text = `今日: 合成${game.dailyChallenge.count}个${CONFIG.RANKS[game.dailyChallenge.rank]}${CONFIG.RANK_NAMES[game.dailyChallenge.rank]}`;
+    } else if (game.dailyChallenge.type === 'combo') {
+        text = `今日: 达成${game.dailyChallenge.count}连击`;
+    } else if (game.dailyChallenge.type === 'score') {
+        text = `今日: 单局${game.dailyChallenge.count}分`;
+    }
+    
+    document.getElementById('dailyText').textContent = text;
+}
+
+// ==================== 教程 ====================
+const TUTORIALS = [
+    { title: '👋 欢迎新手！', text: '拖动相同的头像到一起，就能合成升级！' },
+    { title: '🎯 看目标！', text: '完成所有目标才能过关，注意时间！' },
+    { title: '💡 小提示', text: '实习生最多，高级身份要靠合成！摸鱼王只能合成获得！' },
+    { title: '🚀 准备好了吗？', text: '开始你的职场升级之路吧！' }
+];
+
+function showTutorial() {
+    game.tutorialStep = 0;
+    updateTutorialUI();
+    document.getElementById('tutorialOverlay').classList.add('show');
+}
+
+function updateTutorialUI() {
+    const tut = TUTORIALS[game.tutorialStep];
+    document.getElementById('tutorialTitle').textContent = tut.title;
+    document.getElementById('tutorialText').textContent = tut.text;
+}
+
+function nextTutorial() {
+    game.tutorialStep++;
+    if (game.tutorialStep >= TUTORIALS.length) {
+        document.getElementById('tutorialOverlay').classList.remove('show');
+        game.tutorialDone = true;
+        localStorage.setItem('tutorialDone', 'true');
+    } else {
+        updateTutorialUI();
+    }
+}
+
+// ==================== 音效 ====================
+function playSound(type) {
+    try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        
+        switch (type) {
+            case 'merge':
+                osc.frequency.value = 523 + game.combo * 50;
+                gain.gain.value = 0.1;
+                osc.type = 'sine';
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.1);
+                break;
+            case 'combo':
+                osc.frequency.value = 784;
+                gain.gain.value = 0.15;
+                osc.type = 'square';
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.15);
+                break;
+            case 'win':
+                [523, 659, 784, 1047].forEach((f, i) => {
+                    setTimeout(() => {
+                        const o = audioCtx.createOscillator();
+                        const g = audioCtx.createGain();
+                        o.connect(g);
+                        g.connect(audioCtx.destination);
+                        o.frequency.value = f;
+                        g.gain.value = 0.1;
+                        o.type = 'sine';
+                        o.start();
+                        o.stop(audioCtx.currentTime + 0.1);
+                    }, i * 100);
+                });
+                break;
+            case 'fail':
+                osc.frequency.value = 200;
+                gain.gain.value = 0.1;
+                osc.type = 'sawtooth';
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.3);
+                break;
+            case 'achievement':
+                [523, 659, 784, 1047, 1319].forEach((f, i) => {
+                    setTimeout(() => {
+                        const o = audioCtx.createOscillator();
+                        const g = audioCtx.createGain();
+                        o.connect(g);
+                        g.connect(audioCtx.destination);
+                        o.frequency.value = f;
+                        g.gain.value = 0.08;
+                        o.type = 'sine';
+                        o.start();
+                        o.stop(audioCtx.currentTime + 0.15);
+                    }, i * 80);
+                });
+                break;
+        }
+    } catch (e) {}
+}
+
+// ==================== UI辅助 ====================
+function showCombo(n) {
+    if (n < 2) return;
+    const el = document.getElementById('comboDisplay');
+    el.textContent = '连击 x' + n + '!';
+    el.classList.remove('show');
+    void el.offsetWidth;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 500);
+}
+
+function showScorePopup(x, y, text) {
+    const popup = document.createElement('div');
+    popup.className = 'score-popup';
+    popup.textContent = text;
+    popup.style.left = x + 'px';
+    popup.style.top = y + 'px';
+    document.getElementById('gameBoard').appendChild(popup);
+    setTimeout(() => popup.remove(), 800);
+}
+
+function showToast(msg) {
+    const el = document.getElementById('toastMessage');
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 1500);
+}
+
+function shareResult() {
+    const rankIndex = getCurrentRankIndex();
+    const text = `🎮 合成天选打工人\n我打到了第 ${game.level} 关！\n总分：${game.score}\n段位：${CONFIG.RANKS[rankIndex]} ${CONFIG.RANK_NAMES[rankIndex]}\n来挑战我吧！`;
+    
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => showToast('已复制到剪贴板！'));
+    } else {
+        showToast('分享功能开发中');
+    }
+}
+
+function updateUI() {
+    document.getElementById('scoreDisplay').textContent = game.score;
+    updateRankUI();
+}
+
+// ==================== 存档 ====================
+function saveGame() {
+    const data = {
+        level: game.level,
+        maxLevel: game.maxLevel,
+        score: game.score,
+        totalScore: game.totalScore,
+        achievements: game.achievements,
+        stats: game.stats,
+        addTimeUsed: game.addTimeUsed,
+        tutorialDone: game.tutorialDone
+    };
+    try {
+        localStorage.setItem('mergeWorkerProSave', JSON.stringify(data));
+    } catch (e) {}
+}
+
+function loadSave() {
+    try {
+        const data = localStorage.getItem('mergeWorkerProSave');
+        if (data) {
+            const parsed = JSON.parse(data);
+            // 确保stats存在
+            if (!parsed.stats) {
+                parsed.stats = {
+                    totalFishKings: 0,
+                    speedClearCount: 0,
+                    maxCombo: 0,
+                    totalPlayTime: 0,
+                    totalMerges: 0,
+                    totalGames: 0
+                };
+            }
+            return parsed;
+        }
+    } catch (e) {
+        console.log('Load save error:', e);
+    }
+    return null;
+}
+
+function hasSave() {
+    const save = loadSave();
+    return save && save.level > 1;
+}
+
+// ==================== 启动 ====================
+document.addEventListener('DOMContentLoaded', init);
+
+// ==================== 🔐 管理员功能（老板专属）====================
+function adminJumpToLevel(level) {
+    if (!isAdmin && !verifyAdmin()) return;
+    
+    const targetLevel = level || parseInt(document.getElementById('adminLevelInput').value) || 1;
+    if (targetLevel < 1 || targetLevel > 100) {
+        showToast('关卡必须在1-100之间');
+        return;
+    }
+    
+    // 关闭所有弹窗
+    document.querySelectorAll('.modal.show').forEach(m => m.classList.remove('show'));
+    
+    // 关闭开始弹窗（如果在显示）
+    document.getElementById('startModal').classList.remove('show');
+    
+    // 跳转到指定关卡
+    game.level = targetLevel;
+    game.state = 'playing';
+    
+    // 开始关卡
+    beginLevel();
+    
+    showToast(`✅ 已跳转到第 ${targetLevel} 关`);
+    updateAdminButtonState();
+}
+
+function adminAddTime(seconds) {
+    if (!isAdmin && !verifyAdmin()) return;
+    
+    game.time += seconds;
+    document.getElementById('timerDisplay').textContent = game.time;
+    document.getElementById('timerDisplay').classList.remove('warning');
+    showToast(`+${seconds}秒`);
+}
+
+function adminAddItems(type, count) {
+    if (!isAdmin && !verifyAdmin()) return;
+    
+    if (type === 'shuffle') {
+        game.shuffles += count;
+        document.getElementById('shuffleCount').textContent = game.shuffles;
+        showToast(`+${count}洗牌`);
+    } else if (type === 'bomb') {
+        game.bombs += count;
+        document.getElementById('bombCount').textContent = game.bombs;
+        showToast(`+${count}炸弹`);
+    }
+}
+
+function adminSpawnRank(rank) {
+    if (!isAdmin && !verifyAdmin()) return;
+    if (game.state !== 'playing') {
+        showToast('请先开始游戏');
+        return;
+    }
+    
+    // 在画布中央生成指定等级的头像
+    const worker = {
+        id: Date.now() + Math.random(),
+        rank: rank,
+        x: canvasWidth / 2 - CONFIG.WORKER_SIZE / 2,
+        y: canvasHeight / 2 - CONFIG.WORKER_SIZE / 2,
+        scale: 1,
+        spawnAnim: 0
+    };
+    game.workers.push(worker);
+    showToast(`已生成 ${CONFIG.RANKS[rank]} ${CONFIG.RANK_NAMES[rank]}`);
+}
+
+function adminClearWorkers() {
+    if (!isAdmin && !verifyAdmin()) return;
+    
+    game.workers = [];
+    showToast('已清空所有头像');
+}
+
+function adminAutoWin() {
+    if (!isAdmin && !verifyAdmin()) return;
+    if (game.state !== 'playing') {
+        showToast('请先开始游戏');
+        return;
+    }
+    
+    // 直接完成所有目标
+    game.targets.forEach(t => {
+        game.targetProgress[t.rank] = t.count;
+    });
+    updateTargetsUI();
+    
+    // 触发过关
+    setTimeout(() => levelComplete(), 500);
+    showToast('直接过关！');
+}
+
+function adminLogout() {
+    localStorage.removeItem('merge_worker_admin');
+    isAdmin = false;
+    document.getElementById('adminPanel').classList.remove('show');
+    updateAdminButtonState();
+    showToast('已退出管理员权限');
+}
+
+// 键盘快捷键（管理员专属）
+document.addEventListener('keydown', (e) => {
+    // Ctrl+Shift+A 打开管理员面板
+    if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+        e.preventDefault();
+        showAdminPanel();
+    }
+    
+    // 管理员模式下：数字键1-9快速跳关（x10）
+    if (isAdmin && e.key >= '1' && e.key <= '9' && !e.ctrlKey && !e.shiftKey && !e.altKey) {
+        const level = parseInt(e.key) * 10;
+        if (level <= 100) {
+            adminJumpToLevel(level);
+        }
+    }
+    
+    // 管理员模式下：0键跳到第100关
+    if (isAdmin && e.key === '0' && !e.ctrlKey && !e.shiftKey && !e.altKey) {
+        adminJumpToLevel(100);
+    }
+});
+</script>
+</body>
+</html>

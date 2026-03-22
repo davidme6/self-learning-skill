@@ -1,0 +1,25 @@
+{
+    "description": "合成打工人 - 地狱模式",
+    "packOptions": {
+        "ignore": [
+            {
+                "type": "file",
+                "value": ".git"
+            }
+        ]
+    },
+    "setting": {
+        "urlCheck": false,
+        "es6": true,
+        "postcss": true,
+        "minified": true,
+        "newFeature": true
+    },
+    "compileType": "game",
+    "libVersion": "2.25.3",
+    "appid": "你的抖音小游戏AppID",
+    "projectname": "merge-worker",
+    "simulatorType": "wechat",
+    "simulatorPluginLibVersion": {},
+    "condition": {}
+}

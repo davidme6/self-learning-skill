@@ -1,0 +1,7 @@
+0000000000000000000000000000000000000000 1b20878898189bc45cbc2ca8646a539a69ea2a2f davidme6 <davidme6@users.noreply.github.com> 1773302965 +0800	commit (initial): feat: OpenClaw Gateway Guardian - 网关守护神
+1b20878898189bc45cbc2ca8646a539a69ea2a2f dde6f2f281e1788c07cad67ad4f8487248056e98 davidme6 <davidme6@users.noreply.github.com> 1773303059 +0800	commit: docs: 添加部署指南
+dde6f2f281e1788c07cad67ad4f8487248056e98 c58b39d4f492fee36f6c979ad0b60bb0108808eb davidme6 <davidme6@users.noreply.github.com> 1773550028 +0800	commit: feat: Add Windows installer script and fix encoding issues
+c58b39d4f492fee36f6c979ad0b60bb0108808eb c58b39d4f492fee36f6c979ad0b60bb0108808eb davidme6 <davidme6@users.noreply.github.com> 1773550041 +0800	Branch: renamed refs/heads/master to refs/heads/main
+c58b39d4f492fee36f6c979ad0b60bb0108808eb 2c4b83c957dd6d8e07ace6b36ce70fd742b3fb5c davidme6 <davidme6@users.noreply.github.com> 1773550175 +0800	commit: docs: Add deployment guide and status report
+2c4b83c957dd6d8e07ace6b36ce70fd742b3fb5c d6f92b67499b50f941881381fa7c40326b22ab4e davidme6 <davidme6@users.noreply.github.com> 1773550212 +0800	commit: docs: Add status report
+d6f92b67499b50f941881381fa7c40326b22ab4e 4bddd5e1561c8ee6a122a389ee400c1a38ace7a8 davidme6 <davidme6@users.noreply.github.com> 1773550961 +0800	commit: docs: Add publish guide

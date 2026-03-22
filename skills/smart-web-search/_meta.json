@@ -1,0 +1,53 @@
+{
+  "name": "smart-web-search",
+  "version": "3.1.0",
+  "description": "Smart Web Search v3.1 - Intelligent search with Baidu (China primary) and Google (International primary). 12+ engines total. Real-time news, ad filtering, content de-toxication, multi-engine aggregation. Auto-detects query language for accurate results. All documentation in English.",
+  "author": "Jarvis",
+  "author_url": "https://github.com/davidme6",
+  "repository": "https://github.com/davidme6/openclaw-skills/tree/main/skills/smart-web-search",
+  "license": "MIT",
+  "tags": [
+    "search",
+    "web-search",
+    "smart",
+    "baidu",
+    "google",
+    "cn-search",
+    "ddg",
+    "duckduckgo",
+    "360search",
+    "sogou",
+    "bing",
+    "startpage",
+    "no-api-key",
+    "free",
+    "ad-filter",
+    "de-toxic",
+    "intelligent-search",
+    "real-time",
+    "ad-blocking",
+    "fake-news-filter",
+    "baidu-primary",
+    "google-primary"
+  ],
+  "triggers": [
+    "search",
+    "find",
+    "web search",
+    "real-time news",
+    "latest news",
+    "today news",
+    "latest",
+    "verified search",
+    "safe search",
+    "filter ads",
+    "no ads",
+    "search with Baidu",
+    "search with Google"
+  ],
+  "requirements": {
+    "bins": ["curl"],
+    "env": []
+  },
+  "homepage": "https://github.com/davidme6/openclaw-skills"
+}
