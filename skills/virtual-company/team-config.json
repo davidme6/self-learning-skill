@@ -4,7 +4,7 @@
   "description": "虚拟公司 - CEO + 三个团队27名成员，每人独立办公室+专属模型+持久记忆",
   "author": "davidme6",
   "ceo": {
-    "name": "CEO",
+    "name": "贾维斯",
     "title": "CEO兼总公司战略规划师",
     "emoji": "🏢",
     "model": "bailian/qwen3-max-2026-01-23",
