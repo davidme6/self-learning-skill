@@ -26,9 +26,9 @@
         "tech-expert": {
           "name": "技术专家",
           "emoji": "🛠️",
-          "model": "bailian/qwen3.5-plus",
+          "model": "bailian/glm-5",
           "description": "技术实现、技术评估、技术方案",
-          "number": "MONEY-TECH-001"
+          "number": "MONEY-TECH-002"
         },
         "traffic-master": {
           "name": "流量操盘手",
@@ -61,9 +61,9 @@
         "art-designer": {
           "name": "美术设计师",
           "emoji": "🎨",
-          "model": "bailian/glm-5",
+          "model": "bailian/qwen3.5-plus",
           "description": "视觉设计、品牌设计、广告设计",
-          "number": "MONEY-ART-001"
+          "number": "MONEY-ART-002"
         },
         "quality-checker": {
           "name": "质量把控员",
@@ -96,16 +96,16 @@
         "developer": {
           "name": "程序员",
           "emoji": "👨‍💻",
-          "model": "bailian/qwen3.5-plus",
+          "model": "bailian/glm-5",
           "description": "代码实现、技术方案、Bug修复",
-          "number": "DEV-CODE-001"
+          "number": "DEV-CODE-002"
         },
         "designer": {
           "name": "设计师",
           "emoji": "🎨",
-          "model": "bailian/glm-5",
+          "model": "bailian/qwen3.5-plus",
           "description": "UI/UX设计、交互设计、视觉设计",
-          "number": "DEV-DES-001"
+          "number": "DEV-DES-002"
         },
         "tester": {
           "name": "测试员",
@@ -194,16 +194,16 @@
         "storyboard-artist": {
           "name": "分镜师",
           "emoji": "🎬",
-          "model": "bailian/glm-5",
+          "model": "bailian/qwen3.5-plus",
           "description": "分镜设计、画面构图、镜头语言",
-          "number": "CONTENT-BOARD-001"
+          "number": "CONTENT-BOARD-002"
         },
         "art-director": {
           "name": "美术指导",
           "emoji": "🎨",
-          "model": "bailian/glm-5",
+          "model": "bailian/qwen3.5-plus",
           "description": "整体风格、视觉把控、美术指导",
-          "number": "CONTENT-ART-001"
+          "number": "CONTENT-ART-002"
         },
         "ai-prompt-engineer": {
           "name": "AI提示词工程师",

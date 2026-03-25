@@ -7,70 +7,70 @@
         "market-hunter": {
           "name": "市场猎手",
           "emoji": "🎯",
-          "model": "glm-5",
+          "model": "bailian/glm-5",
           "number": "MONEY-HUNT-001",
           "sessionKey": "agent:main:subagent:1f2de8dc-4fe9-4e9f-9384-7258b0789972"
         },
         "business-advisor": {
           "name": "商业顾问",
           "emoji": "💼",
-          "model": "qwen3-max",
+          "model": "bailian/qwen3-max-2026-01-23",
           "number": "MONEY-BIZ-001",
           "sessionKey": "agent:main:subagent:78c6d545-9818-4834-8330-12b677ddb28f"
         },
         "tech-expert": {
           "name": "技术专家",
           "emoji": "🛠️",
-          "model": "qwen3.5-plus",
-          "number": "MONEY-TECH-001",
-          "sessionKey": "agent:main:subagent:cb2824a3-bfbe-47cf-81ab-27396a38a90b"
+          "model": "bailian/glm-5",
+          "number": "MONEY-TECH-002",
+          "sessionKey": "agent:main:subagent:ce7884f4-23a2-4a5d-bc6c-223f4292ee30"
         },
         "traffic-master": {
           "name": "流量操盘手",
           "emoji": "📱",
-          "model": "glm-5",
+          "model": "bailian/glm-5",
           "number": "MONEY-TRAFFIC-001",
           "sessionKey": "agent:main:subagent:7a89974f-4c91-4dd1-9de7-e4f4ac75aad2"
         },
         "content-expert": {
           "name": "内容专家",
           "emoji": "✍️",
-          "model": "qwen3.5-plus",
+          "model": "bailian/qwen3.5-plus",
           "number": "MONEY-CONTENT-001",
           "sessionKey": "agent:main:subagent:dea50403-463f-4894-abc7-ac86b59f1836"
         },
         "finance-manager": {
           "name": "财务管家",
           "emoji": "💵",
-          "model": "glm-5",
+          "model": "bailian/glm-5",
           "number": "MONEY-FIN-001",
           "sessionKey": "agent:main:subagent:456d74c8-3618-4a09-a6a2-7268d06bbfa3"
         },
         "risk-officer": {
           "name": "风险控制官",
           "emoji": "⚖️",
-          "model": "qwen3-max",
+          "model": "bailian/qwen3-max-2026-01-23",
           "number": "MONEY-RISK-001",
           "sessionKey": "agent:main:subagent:90fcd7d7-b2b3-43b2-a276-26f019c9d600"
         },
         "art-designer": {
           "name": "美术设计师",
           "emoji": "🎨",
-          "model": "glm-5",
-          "number": "MONEY-ART-001",
-          "sessionKey": "agent:main:subagent:089189ee-075a-4af7-b551-783fac2b00da"
+          "model": "bailian/qwen3.5-plus",
+          "number": "MONEY-ART-002",
+          "sessionKey": "agent:main:subagent:4ee50ec7-8cba-4994-a2f7-cd5eb9ad9d8f"
         },
         "quality-checker": {
           "name": "质量把控员",
           "emoji": "🔍",
-          "model": "glm-5",
+          "model": "bailian/glm-5",
           "number": "MONEY-QC-001",
           "sessionKey": "agent:main:subagent:c68f9657-306c-42a8-aecd-172e43513d29"
         },
         "creative-expert": {
           "name": "创意专家",
           "emoji": "💡",
-          "model": "qwen3.5-plus",
+          "model": "bailian/qwen3.5-plus",
           "number": "MONEY-CREATIVE-001",
           "sessionKey": "agent:main:subagent:b0c78bd3-2fb0-4676-a59c-427a7a184d37"
         }
@@ -83,56 +83,56 @@
         "product-manager": {
           "name": "产品经理",
           "emoji": "🎯",
-          "model": "glm-5",
+          "model": "bailian/glm-5",
           "number": "DEV-PM-001",
           "sessionKey": "agent:main:subagent:c448bcc7-e62e-4d7d-bf14-6351499265bd"
         },
         "developer": {
           "name": "程序员",
           "emoji": "👨‍💻",
-          "model": "qwen3.5-plus",
-          "number": "DEV-CODE-001",
-          "sessionKey": "agent:main:subagent:0fca1ef2-af9c-4ac6-989b-7c79d672b98a"
+          "model": "bailian/glm-5",
+          "number": "DEV-CODE-002",
+          "sessionKey": "agent:main:subagent:97875498-4467-4844-bdb3-ec002976f8e2"
         },
         "designer": {
           "name": "设计师",
           "emoji": "🎨",
-          "model": "glm-5",
-          "number": "DEV-DES-001",
-          "sessionKey": "agent:main:subagent:abea1e48-fe92-48e2-9c43-a9ddb05af52c"
+          "model": "bailian/qwen3.5-plus",
+          "number": "DEV-DES-002",
+          "sessionKey": "agent:main:subagent:52d3ac11-5982-4aa7-9012-db3be17e12ae"
         },
         "tester": {
           "name": "测试员",
           "emoji": "🧪",
-          "model": "glm-5",
+          "model": "bailian/glm-5",
           "number": "DEV-TEST-001",
           "sessionKey": "agent:main:subagent:25fa8988-921d-4d52-a993-e11cbad9baee"
         },
         "reviewer": {
           "name": "审查员",
           "emoji": "👀",
-          "model": "glm-5",
+          "model": "bailian/glm-5",
           "number": "DEV-REV-001",
           "sessionKey": "agent:main:subagent:2be3b208-c126-4e51-9068-5d171ae5b3e7"
         },
         "architect": {
           "name": "架构师",
           "emoji": "📐",
-          "model": "qwen3-max",
+          "model": "bailian/qwen3-max-2026-01-23",
           "number": "DEV-ARCH-001",
           "sessionKey": "agent:main:subagent:d91db684-bdb0-44bd-8fc7-74304dc9cd40"
         },
         "devops": {
           "name": "运维师",
           "emoji": "🔧",
-          "model": "glm-5",
+          "model": "bailian/glm-5",
           "number": "DEV-OPS-001",
           "sessionKey": "agent:main:subagent:417b7c99-bcad-4ef5-8cb8-df8793565200"
         },
         "documenter": {
           "name": "文档师",
           "emoji": "📝",
-          "model": "glm-5",
+          "model": "bailian/glm-5",
           "number": "DEV-DOC-001",
           "sessionKey": "agent:main:subagent:5ba508e7-6125-4a6d-8c2b-d1da36beb669"
         }
@@ -145,63 +145,63 @@
         "novel-expert": {
           "name": "小说专家",
           "emoji": "📚",
-          "model": "qwen3.5-plus",
+          "model": "bailian/qwen3.5-plus",
           "number": "CONTENT-NOVEL-001",
           "sessionKey": "agent:main:subagent:3aa30baf-63d8-4c6c-ab35-d56d5f524c27"
         },
         "market-analyst": {
           "name": "市场分析员",
           "emoji": "📊",
-          "model": "glm-5",
+          "model": "bailian/glm-5",
           "number": "CONTENT-MARKET-001",
           "sessionKey": "agent:main:subagent:ae109861-4b30-40af-a4cf-763740f04359"
         },
         "competitor-analyst": {
           "name": "竞品分析员",
           "emoji": "🔍",
-          "model": "glm-5",
+          "model": "bailian/glm-5",
           "number": "CONTENT-COMP-001",
           "sessionKey": "agent:main:subagent:a9c479b7-2f2c-4d1d-a687-a73213370e09"
         },
         "traffic-analyst": {
           "name": "流量分析员",
           "emoji": "📈",
-          "model": "glm-5",
+          "model": "bailian/glm-5",
           "number": "CONTENT-TRAFFIC-001",
           "sessionKey": "agent:main:subagent:7ba260d3-d42d-41c5-8a80-3656d06b317c"
         },
         "business-expert": {
           "name": "商业专家",
           "emoji": "💰",
-          "model": "qwen3-max",
+          "model": "bailian/qwen3-max-2026-01-23",
           "number": "CONTENT-BIZ-001",
           "sessionKey": "agent:main:subagent:9af3d30f-6dc3-4075-a731-0bf5e3aa5e45"
         },
         "legal-advisor": {
           "name": "法律顾问",
           "emoji": "⚖️",
-          "model": "qwen3-max",
+          "model": "bailian/qwen3-max-2026-01-23",
           "number": "CONTENT-LEGAL-001",
           "sessionKey": "agent:main:subagent:dfcd0534-adca-4594-be86-badb29fd5027"
         },
         "storyboard-artist": {
           "name": "分镜师",
           "emoji": "🎬",
-          "model": "glm-5",
-          "number": "CONTENT-BOARD-001",
-          "sessionKey": "agent:main:subagent:421985fe-342a-4a1c-9c2f-a65f592bf0fa"
+          "model": "bailian/qwen3.5-plus",
+          "number": "CONTENT-BOARD-002",
+          "sessionKey": "agent:main:subagent:4b958d1c-35bb-4c38-9593-f3445731d3c4"
         },
         "art-director": {
           "name": "美术指导",
           "emoji": "🎨",
-          "model": "glm-5",
-          "number": "CONTENT-ART-001",
-          "sessionKey": "agent:main:subagent:b350adc9-546d-4c4b-867e-a7758aba12f3"
+          "model": "bailian/qwen3.5-plus",
+          "number": "CONTENT-ART-002",
+          "sessionKey": "agent:main:subagent:bb46e61f-f53e-4af5-8ea9-7114e53ccdf9"
         },
         "ai-prompt-engineer": {
           "name": "AI提示词工程师",
           "emoji": "🤖",
-          "model": "qwen3.5-plus",
+          "model": "bailian/qwen3.5-plus",
           "number": "CONTENT-AI-001",
           "sessionKey": "agent:main:subagent:4b61f55f-b695-499b-b3d4-efa319b064b0"
         }
@@ -209,5 +209,5 @@
     }
   },
   "totalMembers": 27,
-  "lastUpdated": "2026-03-25T17:55:00+08:00"
+  "lastUpdated": "2026-03-25T19:28:00+08:00"
 }
