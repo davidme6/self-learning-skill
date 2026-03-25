@@ -1,8 +1,17 @@
 {
   "name": "virtual-company",
-  "version": "1.0.0",
-  "description": "虚拟公司 - 三个团队27名成员，每人独立办公室+专属模型+持久记忆",
+  "version": "1.1.0",
+  "description": "虚拟公司 - CEO + 三个团队27名成员，每人独立办公室+专属模型+持久记忆",
   "author": "davidme6",
+  "ceo": {
+    "name": "CEO",
+    "title": "CEO兼总公司战略规划师",
+    "emoji": "🏢",
+    "model": "bailian/qwen3-max-2026-01-23",
+    "number": "CEO-001",
+    "sessionKey": "agent:main:subagent:df3a569b-f548-4d20-8df9-77a391cc28b9",
+    "description": "统筹管理三个团队、参与所有会议、向皇帝汇报工作、指挥团队、管理团队、日常运行公司"
+  },
   "teams": {
     "money-team": {
       "name": "搞钱特战队",

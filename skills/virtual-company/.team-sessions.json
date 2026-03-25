@@ -1,4 +1,12 @@
 {
+  "ceo": {
+    "name": "CEO",
+    "title": "CEO兼总公司战略规划师",
+    "emoji": "🏢",
+    "model": "bailian/qwen3-max-2026-01-23",
+    "number": "CEO-001",
+    "sessionKey": "agent:main:subagent:df3a569b-f548-4d20-8df9-77a391cc28b9"
+  },
   "teams": {
     "money-team": {
       "name": "搞钱特战队",
