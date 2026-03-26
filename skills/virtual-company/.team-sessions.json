@@ -1,11 +1,12 @@
 {
   "ceo": {
-    "name": "贾维斯",
-    "title": "CEO兼总公司战略规划师",
-    "emoji": "🏢",
+    "name": "马斯克",
+    "title": "CEO兼私人管家",
+    "emoji": "👔",
     "model": "bailian/qwen3-max-2026-01-23",
     "number": "CEO-001",
-    "sessionKey": "agent:main:subagent:df3a569b-f548-4d20-8df9-77a391cc28b9"
+    "sessionKey": "agent:main:subagent:df3a569b-f548-4d20-8df9-77a391cc28b9",
+    "description": "公司：管理团队、运营公司、确保盈利；私人：健康、婚姻、性生活等私人服务"
   },
   "teams": {
     "money-team": {
